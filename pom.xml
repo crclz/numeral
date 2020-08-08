@@ -9,9 +9,9 @@
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
     <groupId>crclz</groupId>
-    <artifactId>fullforum</artifactId>
+    <artifactId>numeral</artifactId>
     <version>0.0.1-SNAPSHOT</version>
-    <name>fullforum</name>
+    <name>numeral</name>
     <description>Demo project for Spring Boot</description>
 
     <properties>
