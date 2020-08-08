@@ -20,9 +20,13 @@ jobs:
     - name: Build with Maven
       run: mvn -B package --file pom.xml
     - name: Build and push Docker images
+      env:
+        ALIYUN_DOCKER_USERNAME: ${{ secrets.ALIYUN_DOCKER_USERNAME }}
+        ALIYUN_DOCKER_PASSWORD: ${{ secrets.ALIYUN_DOCKER_PASSWORD }}
       uses: docker/build-push-action@v1
       with:
-#         username: ${{ secrets.DOCKER_USERNAME }}
-#         password: ${{ secrets.DOCKER_PASSWORD }}
-#         repository: myorg/myrepository
+        username: ${{ ALIYUN_DOCKER_USERNAME }}
+        password: ${{ ALIYUN_DOCKER_PASSWORD }}
+        registry: registry.cn-hangzhou.aliyuncs.com
+        repository: crucialize/numeral
         tags: latest
