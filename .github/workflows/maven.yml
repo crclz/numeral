@@ -25,8 +25,8 @@ jobs:
         ALIYUN_DOCKER_PASSWORD: ${{ secrets.ALIYUN_DOCKER_PASSWORD }}
       uses: docker/build-push-action@v1
       with:
-        username: ${{ ALIYUN_DOCKER_USERNAME }}
-        password: ${{ ALIYUN_DOCKER_PASSWORD }}
+        username: ${{ secrets.ALIYUN_DOCKER_USERNAME }}
+        password: ${{ secrets.ALIYUN_DOCKER_PASSWORD }}
         registry: registry.cn-hangzhou.aliyuncs.com
         repository: crucialize/numeral
         tags: latest
