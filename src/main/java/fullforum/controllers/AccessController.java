@@ -16,7 +16,7 @@ import javax.validation.Valid;
 import java.time.Duration;
 
 @RestController
-@RequestMapping("access")
+@RequestMapping("/api/access")
 public class AccessController {
 
     @Autowired

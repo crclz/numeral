@@ -31,7 +31,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @RestController
-@RequestMapping("articles")
+@RequestMapping("/api/articles")
 @Validated// PathVariable and params auto validation
 public class ArticlesController {
     @Autowired
