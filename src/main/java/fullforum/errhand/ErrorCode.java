@@ -9,4 +9,5 @@ public enum ErrorCode {
     UsernameNotExist,
     WrongPassword,
     EntityNotExist,
+    FileTooLarge,
 }
