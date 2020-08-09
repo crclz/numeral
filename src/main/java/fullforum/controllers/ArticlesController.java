@@ -118,6 +118,7 @@ public class ArticlesController {
     @Autowired
     ModelMapper modelMapper;
 
+    // TODO: @RequestParam默认required=true, 所以包含可选参数的地方必须要设置required=false
     @GetMapping
     public List<QArticle> getArticles(
             @RequestParam Long userId,
