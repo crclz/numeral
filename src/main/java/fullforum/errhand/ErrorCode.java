@@ -8,4 +8,5 @@ public enum ErrorCode {
     UniqueViolation,
     UsernameNotExist,
     WrongPassword,
+    EntityNotExist,
 }
