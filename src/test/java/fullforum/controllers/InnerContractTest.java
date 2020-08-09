@@ -35,7 +35,7 @@ public class InnerContractTest extends BaseTest {
     @Test
     void badRequest_400() throws Exception {
         mockMvc.perform(
-                post(new URI("/users/report-error?status=BAD_REQUEST"))
+                post(new URI("/api/users/report-error?status=BAD_REQUEST"))
                         .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isBadRequest())
                 .andExpect(status().reason("a"));
@@ -44,7 +44,7 @@ public class InnerContractTest extends BaseTest {
     @Test
     void unauthorized_401() throws Exception {
         mockMvc.perform(
-                post(new URI("/users/report-error?status=UNAUTHORIZED"))
+                post(new URI("/api/users/report-error?status=UNAUTHORIZED"))
                         .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isUnauthorized());
     }
@@ -52,7 +52,7 @@ public class InnerContractTest extends BaseTest {
     @Test
     void forbidden_403() throws Exception {
         mockMvc.perform(
-                post(new URI("/users/report-error?status=FORBIDDEN"))
+                post(new URI("/api/users/report-error?status=FORBIDDEN"))
                         .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isForbidden());
     }
@@ -60,7 +60,7 @@ public class InnerContractTest extends BaseTest {
     @Test
     void forbidden_404() throws Exception {
         mockMvc.perform(
-                post(new URI("/users/report-error?status=NOT_FOUND"))
+                post(new URI("/api/users/report-error?status=NOT_FOUND"))
                         .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isNotFound());
     }

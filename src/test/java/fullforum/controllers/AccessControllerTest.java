@@ -47,7 +47,7 @@ public class AccessControllerTest {
 
     @Test
     void me_return_null_when_not_login() throws Exception {
-        mockMvc.perform(get("/access/me"))
+        mockMvc.perform(get("/api/access/me"))
                 .andExpect(status().isOk())
                 .andExpect(content().string(""));// "" is null
     }
@@ -63,7 +63,7 @@ public class AccessControllerTest {
         var usernameCookie = new Cookie("username", user.getUsername());
         var passwordCookie = new Cookie("password", user.getPassword());
 
-        mockMvc.perform(get("/access/me").cookie(usernameCookie, passwordCookie))
+        mockMvc.perform(get("/api/access/me").cookie(usernameCookie, passwordCookie))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.username", equalTo(user.getUsername())))
                 .andExpect(jsonPath("$.id", hasToString(user.getId().toString())));
@@ -75,7 +75,7 @@ public class AccessControllerTest {
         var usernameCookie = new Cookie("username", "asddad");
         var passwordCookie = new Cookie("password", "adasdad");
 
-        mockMvc.perform(get("/access/me").cookie(usernameCookie, passwordCookie))
+        mockMvc.perform(get("/api/access/me").cookie(usernameCookie, passwordCookie))
                 .andExpect(cookie().value("username", nullValue()))
                 .andExpect(cookie().value("password", nullValue()));
     }
@@ -86,7 +86,7 @@ public class AccessControllerTest {
     @Test
     void login_return_bad_request_when_username_not_exist() throws Exception {
         var loginModel = new LoginModel("asdas", "asdasdasda");
-        mockMvc.perform(post("/access/login").contentType(MediaType.APPLICATION_JSON)
+        mockMvc.perform(post("/api/access/login").contentType(MediaType.APPLICATION_JSON)
                 .content(mapper.writeValueAsString(loginModel)))
                 .andExpect(status().isBadRequest())
                 .andExpect(status().reason(containsStringIgnoringCase("username")));
@@ -98,7 +98,7 @@ public class AccessControllerTest {
         userRepository.save(user);
 
         var loginModel = new LoginModel("aaa", "asdasdasda");
-        mockMvc.perform(post("/access/login")
+        mockMvc.perform(post("/api/access/login")
                 .content(mapper.writeValueAsString(loginModel)).contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isBadRequest())
                 .andExpect(status().reason(containsStringIgnoringCase("password")));
@@ -110,7 +110,7 @@ public class AccessControllerTest {
         userRepository.save(user);
 
         var loginModel = new LoginModel(user.getUsername(), user.getPassword());
-        mockMvc.perform(post("/access/login")
+        mockMvc.perform(post("/api/access/login")
                 .content(mapper.writeValueAsString(loginModel)).contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(cookie().value("username", user.getUsername()))

@@ -101,7 +101,7 @@ class UsersControllerTest extends BaseTest {
         var model = new PatchUserModel("o234a");
 
         var r = mockMvc.perform(
-                patch("/users/{id}", 1)
+                patch("/api/users/{id}", 1)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(mapper.writeValueAsString(model)))
                 .andDo(print())
