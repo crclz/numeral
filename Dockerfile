@@ -14,4 +14,4 @@ ARG JAR_FILE=/appsrc/target/*.jar
 COPY --from=build ${JAR_FILE} app.jar
 COPY wait-for-it.sh wait-for-it.sh
 RUN chmod u+x wait-for-it.sh
-ENTRYPOINT ["./wait-for-it.sh","mysql:3306", "-s", "-t", "20","--","java","-jar","app.jar"]
+ENTRYPOINT ["./wait-for-it.sh","mysql:3306", "-s", "-t", "60","--","java","-jar","app.jar"]
