@@ -9,17 +9,19 @@ import lombok.Setter;
 import javax.persistence.Column;
 
 @Data
-public class QDocument {
-    public Long id;
-    public Long creatorId;
-    public Long teamId;
-    public boolean isAbandoned;
-    public Access publicDocumentAccess;
-    public Access publicCommentAccess;
-    public boolean publicCanShare;
-    public Access teamDocumentAccess;
-    public Access teamCommentAccess;
-    public boolean teamCanShare;
-    public Long lastModifierId;
-    public String data;
+public class QDocument extends BaseQDto {
+    private Long creatorId;
+    private Long teamId;// 可空
+    private String title;
+    private String description;
+    private boolean isAbandoned;
+    private Access publicDocumentAccess;
+    private Access publicCommentAccess;
+    private boolean publicCanShare;
+    private Access teamDocumentAccess;
+    private Access teamCommentAccess;
+    private boolean teamCanShare;
+    private Long lastModifierId;
+    private String data;
+    private int modifyCount;
 }

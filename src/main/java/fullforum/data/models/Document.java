@@ -12,61 +12,75 @@ import javax.persistence.Entity;
 public class Document extends RootEntity {
 
     @Getter
-    @Setter(AccessLevel.PRIVATE)
     private Long creatorId;
 
     @Getter
-    @Setter(AccessLevel.PRIVATE)
+    @Setter
     private Long teamId;// 可空
 
     @Getter
     @Setter
-    private boolean isAbandoned;
+    private String title;
 
     @Getter
     @Setter
-    private Access publicDocumentAccess;
+    private String description;
 
     @Getter
     @Setter
-    private Access publicCommentAccess;
+    private boolean isAbandoned = false;
 
     @Getter
     @Setter
-    private boolean publicCanShare;
+    private Access publicDocumentAccess = Access.None;
 
     @Getter
     @Setter
-    private Access teamDocumentAccess;
+    private Access publicCommentAccess = Access.None;
 
     @Getter
     @Setter
-    private Access teamCommentAccess;
+    private boolean publicCanShare = false;
 
     @Getter
     @Setter
-    private boolean teamCanShare;
+    private Access teamDocumentAccess = Access.None;
 
     @Getter
-    @Setter(AccessLevel.PRIVATE)
-    public Long lastModifierId;
+    @Setter
+    private Access teamCommentAccess = Access.None;
 
     @Getter
+    @Setter
+    private boolean teamCanShare = false;
+
+    @Getter
+    private Long lastModifierId;
+
+    @Getter
+    @Setter
     @Column(columnDefinition = "text", length = 65535)
     private String data;
+
+    @Getter
+    private int modifyCount = 0;
 
 
     protected Document() {
         // Required by jpa
     }
 
-    public Document(long id) {
+    public Document(long id, long creatorId, String title, String description, String data) {
         super(id);
+        this.creatorId = creatorId;
+        this.title = title;
+        this.description = description;
+        this.data = data;
     }
 
-    public void setData(String data, Long lastModifierId) {
-        this.data = data;
-        setLastModifierId(lastModifierId);
+    public void setModifyCountAndModifier(long modifierId) {
+        modifyCount++;
+        this.lastModifierId = modifierId;
     }
 }
 

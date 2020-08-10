@@ -8,24 +8,27 @@ import javax.persistence.Entity;
 
 @Entity
 public class User extends RootEntity {
+    @Getter
     private String username;
+
+    @Getter
     private String password;
+
+    @Getter
     private String description;
+
+    @Getter
     private String avatarUrl;
 
     protected User() {
     }
 
-    public User(long id, String username, String password, String description) {
+    public User(long id, String username, String password, String description, String avatarUrl) {
         super(id);
         setUsername(username);
         setPassword(password);
         setDescription(description);
-    }
-
-
-    public String getUsername() {
-        return username;
+        setAvatarUrl(avatarUrl);
     }
 
     public void setUsername(String username) {
@@ -37,10 +40,6 @@ public class User extends RootEntity {
         }
 
         this.username = username;
-    }
-
-    public String getPassword() {
-        return password;
     }
 
     public void setPassword(String password) {
@@ -57,10 +56,6 @@ public class User extends RootEntity {
         return password.equals(passwordToCheck);
     }
 
-    public String getDescription() {
-        return description;
-    }
-
     public void setDescription(String description) {
         if (description == null) {
             throw new NullPointerException();
@@ -69,10 +64,6 @@ public class User extends RootEntity {
             throw new IllegalArgumentException("Description should shorter than 120");
         }
         this.description = description;
-    }
-
-    public String getAvatarUrl() {
-        return avatarUrl;
     }
 
     public void setAvatarUrl(String avatarUrl) {

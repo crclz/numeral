@@ -37,7 +37,9 @@ public class UsersController {
             throw new BadRequestException(ErrorCode.UniqueViolation, "Username already exist");
         }
 
-        var user = new User(snowflake.nextId(), model.username, model.password, model.description);
+        var initialAvatarUrl = "https://timgsa.baidu.com/timg?image&quality=80&size=b9999_10000&sec=1597064723297&di=c4d1baacccfaa045cbec77dfe4b8eacd&imgtype=0&src=http%3A%2F%2Fwww.cxyclub.cn%2FUpload%2FImages%2F2012022009%2F8466A231F7D5FFB3.jpg";
+
+        var user = new User(snowflake.nextId(), model.username, model.password, model.description, initialAvatarUrl);
         userRepository.save(user);
 
         return new IdDto(user.getId());

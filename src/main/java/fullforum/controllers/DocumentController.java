@@ -25,23 +25,23 @@ public class DocumentController {
     @Autowired
     DocumentRepository documentRepository;
 
-    @PostMapping("update-doc-1")
-    public void updateDocumentOne(@RequestBody DocumentTestModel model) {
-        var doc = documentRepository.findById(1L).orElse(null);
-        if (doc == null) {
-            doc = new Document(1);
-        }
-
-        doc.setData(model.data, 1L);
-
-        documentRepository.save(doc);
-    }
-
-    @GetMapping("get-doc-1")
-    public Document getDocumentOne() {
-        var doc = documentRepository.findById(1L).orElse(null);
-        return doc;
-    }
+//    @PostMapping("update-doc-1")
+//    public void updateDocumentOne(@RequestBody DocumentTestModel model) {
+//        var doc = documentRepository.findById(1L).orElse(null);
+//        if (doc == null) {
+//            doc = new Document(1, );
+//        }
+//
+//        doc.setData(model.data, 1L);
+//
+//        documentRepository.save(doc);
+//    }
+//
+//    @GetMapping("get-doc-1")
+//    public Document getDocumentOne() {
+//        var doc = documentRepository.findById(1L).orElse(null);
+//        return doc;
+//    }
 
     @PostMapping
     public IdDto createDocument(@RequestBody CreateDocumentModel model) {

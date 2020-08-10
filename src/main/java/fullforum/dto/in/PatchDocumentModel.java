@@ -4,6 +4,8 @@ import fullforum.data.models.Access;
 
 public class PatchDocumentModel {
     public String data;
+    public String title;
+    public String description;
     public Long teamId;
     public boolean isAbandoned;
 
