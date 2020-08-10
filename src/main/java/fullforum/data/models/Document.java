@@ -8,7 +8,7 @@ import javax.persistence.Entity;
 @Entity
 public class Document extends RootEntity {
 
-    @Column(length = 65535)
+    @Column(columnDefinition = "text", length = 65535)
     private String data;
 
     protected Document() {
