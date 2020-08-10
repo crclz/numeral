@@ -11,33 +11,33 @@ import javax.persistence.Entity;
 @Entity
 public class JoinRequest extends RootEntity {
     @Getter
-    @Setter(AccessLevel.PRIVATE)
     private Long userId;
 
     @Getter
-    @Setter(AccessLevel.PRIVATE)
     private Long teamId;
 
     @Getter
-    @Setter(AccessLevel.PRIVATE)
-    private boolean isHandled;
+    private boolean isHandled = false;
 
     @Getter
-    @Setter(AccessLevel.PRIVATE)
-    private boolean isRejected;
+    private boolean isAgree = false;
 
     protected JoinRequest() {
 
     }
 
-    public JoinRequest(long id, Long userId, Long teamId) {
+    public JoinRequest(long id, long userId, long teamId) {
         super(id);
-
-        setUserId(userId);
-        setTeamId(teamId);
+        this.userId = userId;
+        this.teamId = teamId;
     }
 
-    public void handle() {
-        throw new NotYetImplementedException();
+    public void handle(boolean agree) {
+        if (isHandled) {
+            throw new IllegalStateException("Request has already been handled");
+        }
+        isHandled = true;
+
+        isAgree = agree;
     }
 }

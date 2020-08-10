@@ -10,7 +10,6 @@ import javax.persistence.Entity;
 @Entity
 public class Team extends RootEntity {
     @Getter
-    @Setter(AccessLevel.PRIVATE)
     private Long leaderId;
 
     @Getter

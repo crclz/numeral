@@ -11,11 +11,9 @@ import java.lang.reflect.Member;
 @Entity
 public class Membership extends RootEntity {
     @Getter
-    @Setter(AccessLevel.PRIVATE)
     private Long teamId;
 
     @Getter
-    @Setter(AccessLevel.PRIVATE)
     private Long userId;
 
     protected Membership() {
@@ -24,7 +22,7 @@ public class Membership extends RootEntity {
 
     public Membership(long id, Long teamId, Long userId) {
         super(id);
-        setTeamId(teamId);
-        setUserId(userId);
+        this.teamId = teamId;
+        this.userId = userId;
     }
 }
