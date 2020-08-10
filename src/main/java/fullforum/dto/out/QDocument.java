@@ -10,6 +10,7 @@ import javax.persistence.Column;
 
 @Data
 public class QDocument {
+    public Long id;
     public Long creatorId;
     public Long teamId;
     public boolean isAbandoned;

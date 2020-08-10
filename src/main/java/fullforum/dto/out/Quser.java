@@ -8,6 +8,8 @@ import org.modelmapper.ModelMapper;
 public class Quser {
     public long id;
     public String username;
+    public String description;
+    public String avatarUrl;
 
     public static Quser convert(User user, ModelMapper mapper) {
         if (user == null) {
