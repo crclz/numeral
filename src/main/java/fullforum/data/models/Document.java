@@ -71,9 +71,3 @@ public class Document extends RootEntity {
 }
 
 
-enum Access {
-    None,
-    Read,
-    ReadWrite
-}
-
