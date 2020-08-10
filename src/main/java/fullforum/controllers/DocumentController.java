@@ -6,11 +6,14 @@ import fullforum.dto.in.CreateDocumentModel;
 import fullforum.dto.in.DocumentTestModel;
 import fullforum.dto.in.PatchDocumentModel;
 import fullforum.dto.out.IdDto;
+import fullforum.dto.out.QDocument;
 import fullforum.services.Snowflake;
 import org.hibernate.cfg.NotYetImplementedException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/documents")
@@ -52,6 +55,20 @@ public class DocumentController {
 
     @DeleteMapping("{id}")
     public void removeDocument(@PathVariable Long id) {
+        throw new NotYetImplementedException();
+    }
+
+    @GetMapping("{id}")
+    public QDocument getDocumentById(@PathVariable Long id) {
+        throw new NotYetImplementedException();
+    }
+
+    @GetMapping
+    public List<QDocument> getDocuments(
+            @RequestParam Long creatorId,
+            @RequestParam Long teamId,
+            @RequestParam boolean myfavorite
+    ) {
         throw new NotYetImplementedException();
     }
 }

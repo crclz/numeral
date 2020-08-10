@@ -6,6 +6,7 @@ import fullforum.data.repos.UserRepository;
 import fullforum.dto.in.LoginModel;
 import fullforum.dto.out.Quser;
 import fullforum.errhand.ErrorCode;
+import org.hibernate.cfg.NotYetImplementedException;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -62,5 +63,10 @@ public class AccessController {
         var passwordCookie = new Cookie("password", model.password);
         passwordCookie.setMaxAge(maxage);
         response.addCookie(passwordCookie);
+    }
+
+    @PostMapping("logout")
+    public void logout() {
+        throw new NotYetImplementedException();
     }
 }
