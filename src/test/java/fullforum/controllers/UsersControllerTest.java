@@ -49,10 +49,10 @@ class UsersControllerTest extends BaseTest {
 
     @Test
     void createUser_throw_Model_when_model_is_invalid() {
-        var model = new CreateUserModel();
-        model.username = "user";
-        model.password = "ad";
-        assertThrows(IllegalArgumentException.class, () -> usersController.createUser(model));
+        var model1 = new CreateUserModel();
+        model1.username = "user";
+        model1.password = "ad";
+        assertThrows(IllegalArgumentException.class, () -> usersController.createUser(model1));
     }
 
     @Test

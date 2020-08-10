@@ -1,10 +1,12 @@
 package fullforum.dto.out;
 
 import fullforum.data.models.Access;
+import fullforum.data.models.Document;
 import lombok.AccessLevel;
 import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
+import org.modelmapper.ModelMapper;
 
 import javax.persistence.Column;
 
@@ -24,4 +26,12 @@ public class QDocument extends BaseQDto {
     private Long lastModifierId;
     private String data;
     private int modifyCount;
+
+    public static QDocument convert(Document document, ModelMapper mapper) {
+        if (document == null) {
+            return null;
+        }
+
+        return mapper.map(document, QDocument.class);
+    }
 }

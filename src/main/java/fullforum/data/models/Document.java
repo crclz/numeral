@@ -28,7 +28,7 @@ public class Document extends RootEntity {
 
     @Getter
     @Setter
-    private boolean isAbandoned = false;
+    private Boolean isAbandoned = false;
 
     @Getter
     @Setter
@@ -40,7 +40,7 @@ public class Document extends RootEntity {
 
     @Getter
     @Setter
-    private boolean publicCanShare = false;
+    private Boolean publicCanShare = false;
 
     @Getter
     @Setter
@@ -52,7 +52,7 @@ public class Document extends RootEntity {
 
     @Getter
     @Setter
-    private boolean teamCanShare = false;
+    private Boolean teamCanShare = false;
 
     @Getter
     private Long lastModifierId;
@@ -72,6 +72,12 @@ public class Document extends RootEntity {
 
     public Document(long id, long creatorId, String title, String description, String data) {
         super(id);
+        if (!(title.length() >= 1 && title.length() <= 25)) {
+            throw new IllegalArgumentException("title length should in [1,25]");
+        }
+        if (description.length() > 140) {
+            throw new IllegalArgumentException("description length should in [1,25]");
+        }
         this.creatorId = creatorId;
         this.title = title;
         this.description = description;

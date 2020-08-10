@@ -7,7 +7,7 @@ public class PatchDocumentModel {
     public String title;
     public String description;
     public Long teamId;
-    public boolean isAbandoned;
+    public Boolean isAbandoned;
 
     public Access publicDocumentAccess;
     public Access publicCommentAccess;
