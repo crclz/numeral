@@ -16,10 +16,11 @@ public class User extends RootEntity {
     protected User() {
     }
 
-    public User(long id, String username, String password) {
+    public User(long id, String username, String password, String description) {
         super(id);
         setUsername(username);
         setPassword(password);
+        setDescription(description);
     }
 
 

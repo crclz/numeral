@@ -37,7 +37,7 @@ public class UsersController {
             throw new BadRequestException(ErrorCode.UniqueViolation, "Username already exist");
         }
 
-        var user = new User(snowflake.nextId(), model.username, model.password);
+        var user = new User(snowflake.nextId(), model.username, model.password, model.description);
         userRepository.save(user);
 
         return new IdDto(user.getId());
