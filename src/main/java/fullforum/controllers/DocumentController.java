@@ -25,7 +25,7 @@ public class DocumentController {
             doc = new Document(1);
         }
 
-        doc.setData(model.data);
+        doc.setData(model.data, 1L);
 
         documentRepository.save(doc);
     }
