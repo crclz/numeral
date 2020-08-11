@@ -11,6 +11,4 @@ public interface DocumentRepository extends JpaRepository<Document, Long> {
 
     List<Document> findAllByTeamId(Long TeamId);
 
-    List<Document> findAllByIsAbandoned(Boolean isAbandoned);
-
 }
