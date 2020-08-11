@@ -89,8 +89,7 @@ public class CommentsController {
             return null;
         }
         var qUser = Quser.convert(userRepository.findById(comment.getUserId()).orElse(null), mapper);
-        var qComment = QComment.convert(comment, qUser, mapper);
-        return qComment;
+        return QComment.convert(comment, qUser, mapper);
     }
 
     @GetMapping
