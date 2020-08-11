@@ -23,9 +23,11 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import javax.persistence.EntityManager;
+import javax.transaction.Transactional;
 import java.util.ArrayList;
 import java.util.List;
 
+@Transactional
 @RestController
 @RequestMapping("/api/comments")
 @Validated
@@ -105,6 +107,7 @@ public class CommentsController {
                         " and (:userId is null or c.userId = :userId)")
                 .setParameter("documentId", documentId)
                 .setParameter("userId", userId);
+
         var results = query.getResultList();
         for (var result : results) {
             var comment = (Comment)result;
