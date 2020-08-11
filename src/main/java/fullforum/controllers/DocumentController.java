@@ -48,8 +48,8 @@ public class DocumentController {
         throw new NotYetImplementedException();
     }
 
-    @PatchMapping
-    public void patchDocument(@RequestBody PatchDocumentModel model) {
+    @PatchMapping("{id}")
+    public void patchDocument(@PathVariable Long id, @RequestBody PatchDocumentModel model) {
         throw new NotYetImplementedException();
     }
 
