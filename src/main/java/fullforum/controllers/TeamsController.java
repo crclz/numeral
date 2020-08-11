@@ -38,21 +38,19 @@ public class TeamsController {
 
     @PostMapping
     public IdDto createTeam(@RequestBody CreateTeamModel model) {
+
         if (!auth.isLoggedIn()) {
             throw new UnauthorizedException();
         }
-        if (model.name.length() < 1 || model.name.length() > 16 || model.description.length() > 140) {
-            throw new IllegalArgumentException();
-        }
+
         var team = new Team(snowflake.nextId(), auth.userId(), model.name, model.description);
         teamRepository.save(team);
         return new IdDto(team.getId());
-
     }
 
     @PatchMapping("{id}")
     public void patchTeam(@PathVariable Long id, @RequestBody PatchTeamModel model) {
-        throw new NotYetImplementedException();
+
     }
 
     @DeleteMapping("{id}")
