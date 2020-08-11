@@ -1,30 +1,28 @@
 package fullforum.controllers;
 
+import fullforum.data.models.Access;
 import fullforum.data.models.Document;
+import fullforum.data.models.Favorite;
 import fullforum.data.repos.DocumentRepository;
 import fullforum.dto.in.CreateDocumentModel;
-import fullforum.dto.in.DocumentTestModel;
 import fullforum.dto.in.PatchDocumentModel;
 import fullforum.dto.out.IdDto;
 import fullforum.dto.out.QDocument;
 import fullforum.errhand.ForbidException;
 import fullforum.errhand.NotFoundException;
 import fullforum.errhand.UnauthorizedException;
-import fullforum.services.Auth;
 import fullforum.services.IAuth;
 import fullforum.services.Snowflake;
 import org.hibernate.cfg.NotYetImplementedException;
-import org.hibernate.query.criteria.internal.CriteriaBuilderImpl;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
-import javax.persistence.criteria.CriteriaBuilder;
-import javax.persistence.criteria.Root;
+import javax.persistence.EntityManager;
+import javax.print.Doc;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.function.Predicate;
 
 @RestController
 @RequestMapping("/api/documents")
@@ -42,10 +40,13 @@ public class DocumentController {
     @Autowired
     ModelMapper modelMapper;
 
+    @Autowired
+    EntityManager entityManager;
+
 
     @PostMapping
     public IdDto createDocument(@RequestBody CreateDocumentModel model) {
-        if (!auth.isLoggedIn()) {
+        if(!auth.isLoggedIn()) {
             throw new UnauthorizedException();
         }
         var document = new Document(snowflake.nextId(), auth.userId(), model.title, model.description, model.data);
@@ -55,7 +56,8 @@ public class DocumentController {
 
     @PatchMapping("{id}")
 
-    public void patchDocument(@RequestBody PatchDocumentModel model, @PathVariable long id) {
+    public void patchDocument(@RequestBody PatchDocumentModel model, @PathVariable long id)
+    {
         if (!auth.isLoggedIn()) {
             throw new UnauthorizedException();
         }
@@ -63,38 +65,31 @@ public class DocumentController {
         if (document == null) {
             throw new NotFoundException();
         }
-        if (auth.userId() != document.getCreatorId()) {
+
+        if (document.getPublicDocumentAccess().equals(Access.ReadWrite) || auth.userId() == document.getCreatorId()) {
+            document.setData(model.data == null ? document.getData() : model.data);
+            document.setTitle(model.title == null ? document.getTitle() : model.title);
+            document.setDescription(model.description == null ? document.getDescription() : model.description);
+        } else {
             throw new ForbidException();
         }
-//
-////        if (model.data != null) {
-////            document.setData(model.data);
-////        }
-////        if (model.title != null) {
-////            document.setData(model.title);
-////        }
-////        if (model.description != null) {
-////            document.setData(model.description);
-////        }
-//
-//
-        document.setData(model.data == null ? document.getData() : model.data);
-        document.setTitle(model.title == null ? document.getTitle() : model.title);
-        document.setDescription(model.description == null ? document.getDescription() : model.description);
-        document.setTeamId(model.teamId == null ? document.getTeamId() : model.teamId);
-        document.setIsAbandoned(model.isAbandoned == null ? document.getIsAbandoned() : model.isAbandoned);
-        document.setPublicDocumentAccess(model.publicDocumentAccess == null ? document.getPublicCommentAccess()
-                : model.publicDocumentAccess);
-        document.setPublicCommentAccess(model.publicCommentAccess == null ? document.getPublicCommentAccess()
-                : model.publicCommentAccess);
-        document.setPublicCanShare(model.publicCanShare == null ? document.getPublicCanShare()
-                : model.publicCanShare);
-        document.setTeamDocumentAccess(model.teamDocumentAccess == null ? document.getTeamCommentAccess()
-                : model.teamDocumentAccess);
-        document.setTeamCommentAccess(model.teamCommentAccess == null ? document.getTeamCommentAccess()
-                : model.teamCommentAccess);
-        document.setTeamCanShare(model.teamCanShare == null ? document.getTeamCanShare()
-                : model.teamCanShare);
+
+        if (auth.userId() == document.getCreatorId()) {
+            document.setTeamId(model.teamId == null ? document.getTeamId() : model.teamId);
+            document.setIsAbandoned(model.isAbandoned == null ? document.getIsAbandoned() : model.isAbandoned);
+            document.setPublicDocumentAccess(model.publicDocumentAccess == null ? document.getPublicCommentAccess()
+                    : model.publicDocumentAccess);
+            document.setPublicCommentAccess(model.publicCommentAccess == null ? document.getPublicCommentAccess()
+                    : model.publicCommentAccess);
+            document.setPublicCanShare(model.publicCanShare == null ? document.getPublicCanShare()
+                    : model.publicCanShare);
+            document.setTeamDocumentAccess(model.teamDocumentAccess == null ? document.getTeamCommentAccess()
+                    : model.teamDocumentAccess);
+            document.setTeamCommentAccess(model.teamCommentAccess == null ? document.getTeamCommentAccess()
+                    : model.teamCommentAccess);
+            document.setTeamCanShare(model.teamCanShare == null ? document.getTeamCanShare()
+                    : model.teamCanShare);
+        }
     }
 
     @DeleteMapping("{id}")
@@ -124,31 +119,57 @@ public class DocumentController {
 
     @GetMapping
     public List<QDocument> getDocuments(
-            @RequestParam Long creatorId,
-            @RequestParam Long teamId,
-            @RequestParam boolean myfavorite,
-            @RequestParam boolean isDeleting
+            @RequestParam(required = false) Long creatorId,
+            @RequestParam(required = false) Long teamId,
+            @RequestParam(required = false) Boolean myfavorite,
+            @RequestParam(required = false) Boolean isAbandoned
     ) {
 
-        List<Document> myDocuments = new ArrayList<>();
-        List<QDocument> results = new ArrayList<>();
-        if (!myfavorite) {
-            if (creatorId != null) {
-                myDocuments = documentRepository.findAllByCreatorId(creatorId);
-            } else {
-                myDocuments = documentRepository.findAllByTeamId(teamId);
+        System.out.println(creatorId + " " + teamId + " " + myfavorite + " " + isAbandoned);
+        List results;
+        List<QDocument> documents = new ArrayList<>();
+
+        if (myfavorite != null && myfavorite) {
+            if (!auth.isLoggedIn()) {
+                throw new UnauthorizedException();
             }
-        }
-        for (Document myDocument : myDocuments) {
-            results.add(QDocument.convert(myDocument, modelMapper));
-        }
+            var query = entityManager.createQuery(
+                    "select d from Document d join Favorite f" +
+                            " on d.id = f.documentId" +
+                            " where f.userId = :userId")
+                    .setParameter("userId", auth.userId());
+            results = query.getResultList();
+            for (var result : results) {
+                var objs = (Object[]) result;
+                var document = (Document)objs[0];
+                documents.add(QDocument.convert(document, modelMapper));
+            }
+            return documents;
 
-        // TODO isDeleting
-        if (isDeleting) {
-            throw new NotYetImplementedException();
+        } else if (isAbandoned != null && isAbandoned) {
+            if (!auth.isLoggedIn()) {
+                throw new UnauthorizedException();
+            }
+            var query = entityManager.createQuery(
+                    "select d from Document d" +
+                            " where d.creatorId = :userId " +
+                            " and d.isAbandoned = true")
+                    .setParameter("userId", auth.userId());
+            results = query.getResultList();
+        } else {
+            var query = entityManager.createQuery(
+                    "select d from Document d" +
+                            " where (:creatorId is null or d.creatorId = :creatorId)" +
+                            " and (:teamId is null or d.teamId = :teamId)")
+                    .setParameter("creatorId", creatorId)
+                    .setParameter("teamId", teamId);
+            results = query.getResultList();
         }
-
-        return results;
+        for (var result : results) {
+            var document = (Document)result;
+            documents.add(QDocument.convert(document, modelMapper));
+        }
+        return documents;
     }
 
 

@@ -41,6 +41,7 @@ public class DocumentControllerTest extends BaseTest {
     MockMvc mockMvc;
 
 
+
     @Test
     void createDocument_throw_IllegalArgumentException_when_model_is_invalid() {
 
@@ -106,11 +107,11 @@ public class DocumentControllerTest extends BaseTest {
         patch.description = "eeeee";
         assertThrows(UnauthorizedException.class, () -> documentController.patchDocument(patch, 1));
     }
-
     @Test
-    void patchDocument_throw_ForbidException_when_user_is_not_creator() {
+    void patchDocument_throw_ForbidException_when_user_is_not_creator_and_PublicDocumentAccess_is_not_ReadWrite() {
         auth.setRealUserId(2);
-        var document = new Document(1, 1, "hahah", "model1.description", "model1.data");
+        var document = new Document(1, 1, "hahah",  "model1.description", "model1.data");
+        document.setPublicDocumentAccess(Access.Read);
         documentRepository.save(document);
 
         var patch = new PatchDocumentModel();
@@ -121,17 +122,16 @@ public class DocumentControllerTest extends BaseTest {
 //
 
     @Test
-    void patchDocument_throw_NotFoundException_when_document_is_not_exist() {
+    void patchDocument_throw_NotFoundException_when_document_is_not_exist(){
         auth.setRealUserId(1);
         var patch = new PatchDocumentModel();
         patch.description = "eeeee";
         assertThrows(NotFoundException.class, () -> documentController.patchDocument(patch, 2));
     }
-
     @Test
     void patchDocument_return_ok_and_update_db_when_all_ok() {
         auth.setRealUserId(1);
-        var document = new Document(1, 1, "hahah", "model1.description", "model1.data");
+        var document = new Document(1, 1, "hahah",  "model1.description", "model1.data");
         documentRepository.save(document);
         var patch = new PatchDocumentModel();
         patch.description = "eeeee";
@@ -185,7 +185,7 @@ public class DocumentControllerTest extends BaseTest {
     @Test
     void getDocumentById_return_null_when_document_not_exist() {
         var doc = documentController.getDocumentById(1L);
-        assertThat(doc).isNull();
+       assertThat(doc).isNull();
     }
 
     @Test
@@ -204,6 +204,7 @@ public class DocumentControllerTest extends BaseTest {
 
     //test getDocuments
     @Test
+
     void getDocumentById_return_list_of_document_infos_when_document_exist() {
 
         var docEntity1 = new Document(1, 2, "qwqqqq", "sawqewqe", "sqdqwe");
@@ -216,19 +217,28 @@ public class DocumentControllerTest extends BaseTest {
         docEntity2.setTeamId(4L);
         docEntity3.setTeamId(5L);
         docEntity4.setTeamId(4L);
+        docEntity5.setIsAbandoned(true);
         documentRepository.save(docEntity1);
         documentRepository.save(docEntity2);
         documentRepository.save(docEntity3);
         documentRepository.save(docEntity4);
         documentRepository.save(docEntity5);
 
-        var creatorId = 2L;
-        var teamId = 4L;
+        var creatorId = 3L;
+        var teamId = 5L;
         List<QDocument> documentList1 = documentController.getDocuments(creatorId, teamId, false, false);
         assertThat(documentList1.size()).isNotZero();
-        for (QDocument qDocument : documentList1) {
+        for (QDocument qDocument:documentList1) {
             assertThat(qDocument.getCreatorId()).isEqualTo(creatorId);
-//            assertThat(qDocument.getTeamId()).isEqualTo(teamId);
+            assertThat(qDocument.getTeamId().longValue()).isEqualTo(teamId);
+        }
+
+        auth.setRealUserId(2);
+        List<QDocument> documentList2 = documentController.getDocuments(creatorId, teamId, false, true);
+        assertThat(documentList2.size()).isNotZero();
+        for (QDocument qDocument:documentList2) {
+            assertThat(qDocument.getCreatorId()).isEqualTo(auth.userId());
+            assertThat(qDocument.isAbandoned()).isEqualTo(true);
         }
     }
 
