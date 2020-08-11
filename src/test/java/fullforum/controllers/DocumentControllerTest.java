@@ -108,9 +108,10 @@ public class DocumentControllerTest extends BaseTest {
         assertThrows(UnauthorizedException.class, () -> documentController.patchDocument(patch, 1));
     }
     @Test
-    void patchDocument_throw_ForbidException_when_user_is_not_creator() {
+    void patchDocument_throw_ForbidException_when_user_is_not_creator_and_PublicDocumentAccess_is_not_ReadWrite() {
         auth.setRealUserId(2);
         var document = new Document(1, 1, "hahah",  "model1.description", "model1.data");
+        document.setPublicDocumentAccess(Access.Read);
         documentRepository.save(document);
 
         var patch = new PatchDocumentModel();

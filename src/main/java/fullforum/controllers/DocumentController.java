@@ -1,30 +1,24 @@
 package fullforum.controllers;
 
+import fullforum.data.models.Access;
 import fullforum.data.models.Document;
 import fullforum.data.repos.DocumentRepository;
 import fullforum.dto.in.CreateDocumentModel;
-import fullforum.dto.in.DocumentTestModel;
 import fullforum.dto.in.PatchDocumentModel;
 import fullforum.dto.out.IdDto;
 import fullforum.dto.out.QDocument;
 import fullforum.errhand.ForbidException;
 import fullforum.errhand.NotFoundException;
 import fullforum.errhand.UnauthorizedException;
-import fullforum.services.Auth;
 import fullforum.services.IAuth;
 import fullforum.services.Snowflake;
-import org.hibernate.cfg.NotYetImplementedException;
-import org.hibernate.query.criteria.internal.CriteriaBuilderImpl;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
-import javax.persistence.criteria.CriteriaBuilder;
-import javax.persistence.criteria.Root;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.function.Predicate;
 
 @RestController
 @RequestMapping("/api/documents")
@@ -64,38 +58,32 @@ public class DocumentController {
         if (document == null) {
             throw new NotFoundException();
         }
-        if (auth.userId() != document.getCreatorId()) {
+
+        if (document.getPublicDocumentAccess().equals(Access.ReadWrite) || auth.userId() == document.getCreatorId()) {
+
+            document.setData(model.data == null ? document.getData() : model.data);
+            document.setTitle(model.title == null ? document.getTitle() : model.title);
+            document.setDescription(model.description == null ? document.getDescription() : model.description);
+        } else {
             throw new ForbidException();
         }
-//
-////        if (model.data != null) {
-////            document.setData(model.data);
-////        }
-////        if (model.title != null) {
-////            document.setData(model.title);
-////        }
-////        if (model.description != null) {
-////            document.setData(model.description);
-////        }
-//
-//
-        document.setData(model.data == null?document.getData():model.data);
-        document.setTitle(model.title == null?document.getTitle():model.title);
-        document.setDescription(model.description == null?document.getDescription():model.description);
-        document.setTeamId(model.teamId == null?document.getTeamId():model.teamId);
-        document.setIsAbandoned(model.isAbandoned == null?document.getIsAbandoned():model.isAbandoned);
-        document.setPublicDocumentAccess(model.publicDocumentAccess == null?document.getPublicCommentAccess()
-                :model.publicDocumentAccess);
-        document.setPublicCommentAccess(model.publicCommentAccess == null?document.getPublicCommentAccess()
-                :model.publicCommentAccess);
-        document.setPublicCanShare(model.publicCanShare == null?document.getPublicCanShare()
-                :model.publicCanShare);
-        document.setTeamDocumentAccess(model.teamDocumentAccess == null?document.getTeamCommentAccess()
-                :model.teamDocumentAccess);
-        document.setTeamCommentAccess(model.teamCommentAccess == null?document.getTeamCommentAccess()
-                :model.teamCommentAccess);
-        document.setTeamCanShare(model.teamCanShare == null?document.getTeamCanShare()
-                :model.teamCanShare);
+
+        if (auth.userId() == document.getCreatorId()) {
+            document.setTeamId(model.teamId == null ? document.getTeamId() : model.teamId);
+            document.setIsAbandoned(model.isAbandoned == null ? document.getIsAbandoned() : model.isAbandoned);
+            document.setPublicDocumentAccess(model.publicDocumentAccess == null ? document.getPublicCommentAccess()
+                    : model.publicDocumentAccess);
+            document.setPublicCommentAccess(model.publicCommentAccess == null ? document.getPublicCommentAccess()
+                    : model.publicCommentAccess);
+            document.setPublicCanShare(model.publicCanShare == null ? document.getPublicCanShare()
+                    : model.publicCanShare);
+            document.setTeamDocumentAccess(model.teamDocumentAccess == null ? document.getTeamCommentAccess()
+                    : model.teamDocumentAccess);
+            document.setTeamCommentAccess(model.teamCommentAccess == null ? document.getTeamCommentAccess()
+                    : model.teamCommentAccess);
+            document.setTeamCanShare(model.teamCanShare == null ? document.getTeamCanShare()
+                    : model.teamCanShare);
+        }
     }
 
     @DeleteMapping("{id}")
