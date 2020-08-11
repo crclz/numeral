@@ -59,7 +59,7 @@ class UsersControllerTest extends BaseTest {
     void createUser_throw_BadRequestExcepton_when_username_exist() {
         // Arrange: insert a user with username 'user'
         var previousUser = new User(snowflake.nextId(), "user", "aaaaaaaa", "asdsda", "aaaaaa");
-        usersController.userRepository.save(previousUser);
+        userRepository.save(previousUser);
 
         // Act & Assert
         var model = new CreateUserModel();

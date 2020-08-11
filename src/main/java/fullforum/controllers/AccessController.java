@@ -13,9 +13,11 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletResponse;
+import javax.transaction.Transactional;
 import javax.validation.Valid;
 import java.time.Duration;
 
+@Transactional
 @RestController
 @RequestMapping("/api/access")
 public class AccessController {

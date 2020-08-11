@@ -21,9 +21,11 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.persistence.EntityManager;
 import javax.print.Doc;
+import javax.transaction.Transactional;
 import java.util.ArrayList;
 import java.util.List;
 
+@Transactional
 @RestController
 @RequestMapping("/api/documents")
 @Validated// PathVariable and params auto validation
@@ -46,7 +48,7 @@ public class DocumentController {
 
     @PostMapping
     public IdDto createDocument(@RequestBody CreateDocumentModel model) {
-        if(!auth.isLoggedIn()) {
+        if (!auth.isLoggedIn()) {
             throw new UnauthorizedException();
         }
         var document = new Document(snowflake.nextId(), auth.userId(), model.title, model.description, model.data);
@@ -56,8 +58,7 @@ public class DocumentController {
 
     @PatchMapping("{id}")
 
-    public void patchDocument(@RequestBody PatchDocumentModel model, @PathVariable long id)
-    {
+    public void patchDocument(@RequestBody PatchDocumentModel model, @PathVariable long id) {
         if (!auth.isLoggedIn()) {
             throw new UnauthorizedException();
         }
@@ -139,7 +140,7 @@ public class DocumentController {
             results = query.getResultList();
             for (var result : results) {
                 var objs = (Object[]) result;
-                var document = (Document)objs[0];
+                var document = (Document) objs[0];
                 documents.add(QDocument.convert(document, modelMapper));
             }
             return documents;
@@ -164,7 +165,7 @@ public class DocumentController {
             results = query.getResultList();
         }
         for (var result : results) {
-            var document = (Document)result;
+            var document = (Document) result;
             documents.add(QDocument.convert(document, modelMapper));
         }
         return documents;
