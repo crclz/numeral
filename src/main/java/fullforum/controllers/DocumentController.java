@@ -54,6 +54,7 @@ public class DocumentController {
     }
 
     @PatchMapping("{id}")
+
     public void patchDocument(@RequestBody PatchDocumentModel model, @PathVariable long id)
     {
         if (!auth.isLoggedIn()) {

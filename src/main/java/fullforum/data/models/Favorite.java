@@ -9,11 +9,9 @@ import javax.persistence.Entity;
 @Entity
 public class Favorite extends RootEntity {
     @Getter
-    @Setter
     private Long userId;
 
     @Getter
-    @Setter
     private Long documentId;
 
     protected Favorite() {
@@ -22,7 +20,7 @@ public class Favorite extends RootEntity {
 
     public Favorite(long id, long userId, long documentId) {
         super(id);
-        setUserId(userId);
-        setDocumentId(documentId);
+        this.userId = userId;
+        this.documentId = documentId;
     }
 }
