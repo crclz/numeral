@@ -55,6 +55,9 @@ public class CommentsController {
         if (!auth.isLoggedIn()) {
             throw new UnauthorizedException();
         }
+        if (model.content == null || model.content.length() < 1 || model.content.length() > 140) {
+            throw new IllegalArgumentException();
+        }
         var document = documentRepository.findById(model.documentId).orElse(null);
         if (document == null) {
             throw new NotFoundException();

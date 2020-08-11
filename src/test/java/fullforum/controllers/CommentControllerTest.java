@@ -44,7 +44,7 @@ public class CommentControllerTest extends BaseTest{
     //test createComment
 
     @Test
-    void creatFComment_throw_UnauthorizedException_when_user_is_not_log_in() {
+    void creatComment_throw_UnauthorizedException_when_user_is_not_log_in() {
         var model = new CreateCommentModel(1L, "hahaha");
         assertThrows(UnauthorizedException.class, () -> commentsController.createComment(model));
     }
@@ -54,6 +54,15 @@ public class CommentControllerTest extends BaseTest{
         auth.setRealUserId(1);
         var model = new CreateCommentModel(1L, "hahaha");
         assertThrows(NotFoundException.class, () -> commentsController.createComment(model));
+    }
+
+    @Test
+    void creatComment_throw_IllegalArgumentException_when_model_is_invalid() {
+        auth.setRealUserId(1);
+        String content = "hhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhh" +
+                "hhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhh";//160
+        var model = new CreateCommentModel(1L, content);
+        assertThrows(IllegalArgumentException.class, () -> commentsController.createComment(model));
     }
 
     @Test
