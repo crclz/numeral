@@ -58,10 +58,12 @@ public class AccessController {
         int maxage = (int) Duration.ofDays(180).toSeconds();
         var usernameCookie = new Cookie("username", model.username);
         usernameCookie.setMaxAge(maxage);
+        usernameCookie.setPath("/");
         response.addCookie(usernameCookie);
 
         var passwordCookie = new Cookie("password", model.password);
         passwordCookie.setMaxAge(maxage);
+        passwordCookie.setPath("/");
         response.addCookie(passwordCookie);
     }
 
