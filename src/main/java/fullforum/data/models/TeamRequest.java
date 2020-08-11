@@ -9,7 +9,7 @@ import org.hibernate.cfg.NotYetImplementedException;
 import javax.persistence.Entity;
 
 @Entity
-public class JoinRequest extends RootEntity {
+public class TeamRequest extends RootEntity {
     @Getter
     private Long userId;
 
@@ -22,11 +22,11 @@ public class JoinRequest extends RootEntity {
     @Getter
     private boolean isAgree = false;
 
-    protected JoinRequest() {
+    protected TeamRequest() {
 
     }
 
-    public JoinRequest(long id, long userId, long teamId) {
+    public TeamRequest(long id, long userId, long teamId) {
         super(id);
         this.userId = userId;
         this.teamId = teamId;
