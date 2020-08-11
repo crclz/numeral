@@ -46,7 +46,7 @@ public class DocumentController {
 
     @PostMapping
     public IdDto createDocument(@RequestBody CreateDocumentModel model) {
-        if(!auth.isLoggedIn()) {
+        if (!auth.isLoggedIn()) {
             throw new UnauthorizedException();
         }
         var document = new Document(snowflake.nextId(), auth.userId(), model.title, model.description, model.data);
@@ -56,8 +56,7 @@ public class DocumentController {
 
     @PatchMapping("{id}")
 
-    public void patchDocument(@RequestBody PatchDocumentModel model, @PathVariable long id)
-    {
+    public void patchDocument(@RequestBody PatchDocumentModel model, @PathVariable long id) {
         if (!auth.isLoggedIn()) {
             throw new UnauthorizedException();
         }
