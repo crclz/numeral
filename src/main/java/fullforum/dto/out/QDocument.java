@@ -34,4 +34,6 @@ public class QDocument extends BaseQDto {
 
         return mapper.map(document, QDocument.class);
     }
+
+
 }
