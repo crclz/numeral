@@ -35,6 +35,7 @@ public class TeamsController {
     @PostMapping
     public IdDto createTeam(@RequestBody CreateTeamModel model) {
         throw new NotYetImplementedException();
+        
     }
 
     @PatchMapping("{id}")
