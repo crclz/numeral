@@ -46,14 +46,6 @@ public class TeamControllerTest extends BaseTest {
         assertThrows(UnauthorizedException.class, () -> teamsController.createTeam(model));
     }
 
-    @Test
-    void creatComment_throw_IllegalArgumentException_when_model_is_invalid() {
-        auth.setRealUserId(1);
-        String content = "hhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhh" +
-                "hhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhh";//160
-        var model = new CreateTeamModel("haha", content);
-        assertThrows(IllegalArgumentException.class, () -> teamsController.createTeam(model));
-    }
 
 
     @Test
