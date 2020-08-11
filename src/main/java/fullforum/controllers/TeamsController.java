@@ -1,10 +1,15 @@
 package fullforum.controllers;
 
+import fullforum.data.repos.TeamRepository;
+import fullforum.data.repos.UserRepository;
 import fullforum.dto.in.PatchTeamModel;
 import fullforum.dto.in.CreateTeamModel;
 import fullforum.dto.out.IdDto;
 import fullforum.dto.out.QTeam;
+import fullforum.services.IAuth;
+import fullforum.services.Snowflake;
 import org.hibernate.cfg.NotYetImplementedException;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
@@ -14,6 +19,18 @@ import java.util.List;
 @RequestMapping("/api/teams")
 @Validated
 public class TeamsController {
+    @Autowired
+    IAuth auth;
+
+    @Autowired
+    Snowflake snowflake;
+
+    @Autowired
+    TeamRepository teamRepository;
+
+    @Autowired
+    UserRepository userRepository;
+
 
     @PostMapping
     public IdDto createTeam(@RequestBody CreateTeamModel model) {
