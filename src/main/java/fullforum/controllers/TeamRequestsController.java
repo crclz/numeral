@@ -20,12 +20,17 @@ public class TeamRequestsController {
 
     @PostMapping
     public IdDto createTeamRequest(@RequestBody CreateTeamRequestModel model) {
+        // 没有membership才允许发送请求
+
         throw new NotYetImplementedException();
     }
 
     @PatchMapping("{id}")
     public void patchTeamRequest(@RequestBody PatchTeamRequestModel model, @PathVariable Long id) {
         // 注意，当该Request.isHandled为true时，抛出BadRequest：该请求已经被处理
+
+        // 如果agree，那么涉及到Membership的增加
+
         throw new NotYetImplementedException();
     }
 
