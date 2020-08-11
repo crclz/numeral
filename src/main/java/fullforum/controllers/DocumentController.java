@@ -2,7 +2,6 @@ package fullforum.controllers;
 
 import fullforum.data.models.Access;
 import fullforum.data.models.Document;
-import fullforum.data.models.Favorite;
 import fullforum.data.repos.DocumentRepository;
 import fullforum.dto.in.CreateDocumentModel;
 import fullforum.dto.in.PatchDocumentModel;
@@ -13,14 +12,12 @@ import fullforum.errhand.NotFoundException;
 import fullforum.errhand.UnauthorizedException;
 import fullforum.services.IAuth;
 import fullforum.services.Snowflake;
-import org.hibernate.cfg.NotYetImplementedException;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import javax.persistence.EntityManager;
-import javax.print.Doc;
 import javax.transaction.Transactional;
 import java.util.ArrayList;
 import java.util.List;
@@ -175,6 +172,8 @@ public class DocumentController {
         }
         return documents;
     }
+
+
 
 
 }
