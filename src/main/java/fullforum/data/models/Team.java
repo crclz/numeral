@@ -24,7 +24,8 @@ public class Team extends RootEntity {
 
     }
 
-    public Team(Long leaderId, String name, String description) {
+    public Team(Long teamId, Long leaderId, String name, String description) {
+        super(teamId);
         this.leaderId = leaderId;
         setName(name);
         setDescription(description);
