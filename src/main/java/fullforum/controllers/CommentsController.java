@@ -99,7 +99,6 @@ public class CommentsController {
             @RequestParam(required = false) Long documentId,
             @RequestParam(required = false) Long userId
     ) {
-        List results;
         List<QComment> comments = new ArrayList<>();
 
         var query = entityManager.createQuery(
@@ -108,7 +107,8 @@ public class CommentsController {
                         " and (:userId is null or c.userId = :userId)")
                 .setParameter("documentId", documentId)
                 .setParameter("userId", userId);
-        results = query.getResultList();
+
+        var results = query.getResultList();
         for (var result : results) {
             var comment = (Comment)result;
             var qUser = Quser.convert(userRepository.findById(comment.getUserId()).orElse(null), mapper);
