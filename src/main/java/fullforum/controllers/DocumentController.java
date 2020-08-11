@@ -90,6 +90,9 @@ public class DocumentController {
             document.setTeamCanShare(model.teamCanShare == null ? document.getTeamCanShare()
                     : model.teamCanShare);
         }
+        document.updatedAtNow();
+        documentRepository.save(document);
+
     }
 
     @DeleteMapping("{id}")
