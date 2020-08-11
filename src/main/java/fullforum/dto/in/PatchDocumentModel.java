@@ -12,7 +12,7 @@ public class PatchDocumentModel {
     @Size(max = 140)
     public String description;
     public Long teamId;
-    public boolean isAbandoned;
+    public Boolean isAbandoned;
 
     public Access publicDocumentAccess;
     public Access publicCommentAccess;
