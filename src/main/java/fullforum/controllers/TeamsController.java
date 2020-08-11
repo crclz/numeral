@@ -1,11 +1,13 @@
 package fullforum.controllers;
 
+import fullforum.data.models.Team;
 import fullforum.data.repos.TeamRepository;
 import fullforum.data.repos.UserRepository;
 import fullforum.dto.in.PatchTeamModel;
 import fullforum.dto.in.CreateTeamModel;
 import fullforum.dto.out.IdDto;
 import fullforum.dto.out.QTeam;
+import fullforum.errhand.UnauthorizedException;
 import fullforum.services.IAuth;
 import fullforum.services.Snowflake;
 import org.hibernate.cfg.NotYetImplementedException;
@@ -34,8 +36,16 @@ public class TeamsController {
 
     @PostMapping
     public IdDto createTeam(@RequestBody CreateTeamModel model) {
-        throw new NotYetImplementedException();
-        
+        if (!auth.isLoggedIn()) {
+            throw new UnauthorizedException();
+        }
+        if (model.name.length() < 1 || model.name.length() > 16 || model.description.length() > 140) {
+            throw new IllegalArgumentException();
+        }
+        var team = new Team(snowflake.nextId(), auth.userId(), model.name, model.description);
+        teamRepository.save(team);
+        return new IdDto(team.getId());
+
     }
 
     @PatchMapping("{id}")

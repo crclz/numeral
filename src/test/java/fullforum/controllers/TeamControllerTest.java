@@ -2,7 +2,10 @@ package fullforum.controllers;
 
 import fullforum.BaseTest;
 import fullforum.data.models.Access;
+import fullforum.data.models.Document;
+import fullforum.data.repos.CommentRepository;
 import fullforum.data.repos.DocumentRepository;
+import fullforum.data.repos.TeamRepository;
 import fullforum.data.repos.UserRepository;
 import fullforum.dependency.FakeAuth;
 import fullforum.dto.in.CreateCommentModel;
@@ -29,6 +32,9 @@ public class TeamControllerTest extends BaseTest {
     DocumentRepository documentRepository;
 
     @Autowired
+    TeamRepository teamRepository;
+
+    @Autowired
     FakeAuth auth;
 
 
@@ -40,6 +46,30 @@ public class TeamControllerTest extends BaseTest {
         assertThrows(UnauthorizedException.class, () -> teamsController.createTeam(model));
     }
 
+    @Test
+    void creatComment_throw_IllegalArgumentException_when_model_is_invalid() {
+        auth.setRealUserId(1);
+        String content = "hhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhh" +
+                "hhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhh";//160
+        var model = new CreateTeamModel("haha", content);
+        assertThrows(IllegalArgumentException.class, () -> teamsController.createTeam(model));
+    }
+
+
+    @Test
+    void creatComment_return_id_and_update_db_when_all_ok(){
+        auth.setRealUserId(1);
+        var model = new CreateTeamModel("haha", "hahaha");
+        var tid = teamsController.createTeam(model);
+        assertNotNull(tid);
+
+        var teamInDb = teamRepository.findById(tid.id).orElse(null);
+
+        assertNotNull(teamInDb);
+        assertThat(teamInDb.getDescription()).isEqualTo(model.description);
+        assertThat(teamInDb.getLeaderId()).isEqualTo(1);
+        assertThat(teamInDb.getName()).isEqualTo(model.name);
+    }
 
 
 
