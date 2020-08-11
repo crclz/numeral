@@ -17,8 +17,10 @@ import java.util.List;
 @Validated
 public class TeamsController {
 
+
     @PostMapping
     public IdDto createTeam(@RequestBody CreateTeamModel model) {
+        // 注意添加membership
         throw new NotYetImplementedException();
     }
 

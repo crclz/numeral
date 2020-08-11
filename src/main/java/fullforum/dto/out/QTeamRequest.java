@@ -11,4 +11,5 @@ public class QTeamRequest extends BaseQDto {
     private boolean isAgree;
 
     private Quser sender;
+    private QTeam team;
 }
