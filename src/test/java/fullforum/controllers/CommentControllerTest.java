@@ -52,6 +52,7 @@ public class CommentControllerTest extends BaseTest{
     @Test
     void creatComment_throw_NotFoundException_when_document_is_not_exist() {
         auth.setRealUserId(1);
+        
         var model = new CreateCommentModel(1L, "hahaha");
         assertThrows(NotFoundException.class, () -> commentsController.createComment(model));
     }
