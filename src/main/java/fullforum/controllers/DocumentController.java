@@ -45,7 +45,7 @@ public class DocumentController {
 
     @PostMapping
     public IdDto createDocument(@RequestBody CreateDocumentModel model) {
-        if(!auth.isLoggedIn()) {
+        if (!auth.isLoggedIn()) {
             throw new UnauthorizedException();
         }
         var document = new Document(snowflake.nextId(), auth.userId(), model.title, model.description, model.data);
@@ -55,8 +55,7 @@ public class DocumentController {
 
     @PatchMapping("{id}")
 
-    public void patchDocument(@RequestBody PatchDocumentModel model, @PathVariable long id)
-    {
+    public void patchDocument(@RequestBody PatchDocumentModel model, @PathVariable long id) {
         if (!auth.isLoggedIn()) {
             throw new UnauthorizedException();
         }
@@ -79,23 +78,23 @@ public class DocumentController {
 ////        }
 //
 //
-        document.setData(model.data == null?document.getData():model.data);
-        document.setTitle(model.title == null?document.getTitle():model.title);
-        document.setDescription(model.description == null?document.getDescription():model.description);
-        document.setTeamId(model.teamId == null?document.getTeamId():model.teamId);
-        document.setIsAbandoned(model.isAbandoned == null?document.getIsAbandoned():model.isAbandoned);
-        document.setPublicDocumentAccess(model.publicDocumentAccess == null?document.getPublicCommentAccess()
-                :model.publicDocumentAccess);
-        document.setPublicCommentAccess(model.publicCommentAccess == null?document.getPublicCommentAccess()
-                :model.publicCommentAccess);
-        document.setPublicCanShare(model.publicCanShare == null?document.getPublicCanShare()
-                :model.publicCanShare);
-        document.setTeamDocumentAccess(model.teamDocumentAccess == null?document.getTeamCommentAccess()
-                :model.teamDocumentAccess);
-        document.setTeamCommentAccess(model.teamCommentAccess == null?document.getTeamCommentAccess()
-                :model.teamCommentAccess);
-        document.setTeamCanShare(model.teamCanShare == null?document.getTeamCanShare()
-                :model.teamCanShare);
+        document.setData(model.data == null ? document.getData() : model.data);
+        document.setTitle(model.title == null ? document.getTitle() : model.title);
+        document.setDescription(model.description == null ? document.getDescription() : model.description);
+        document.setTeamId(model.teamId == null ? document.getTeamId() : model.teamId);
+        document.setIsAbandoned(model.isAbandoned == null ? document.getIsAbandoned() : model.isAbandoned);
+        document.setPublicDocumentAccess(model.publicDocumentAccess == null ? document.getPublicCommentAccess()
+                : model.publicDocumentAccess);
+        document.setPublicCommentAccess(model.publicCommentAccess == null ? document.getPublicCommentAccess()
+                : model.publicCommentAccess);
+        document.setPublicCanShare(model.publicCanShare == null ? document.getPublicCanShare()
+                : model.publicCanShare);
+        document.setTeamDocumentAccess(model.teamDocumentAccess == null ? document.getTeamCommentAccess()
+                : model.teamDocumentAccess);
+        document.setTeamCommentAccess(model.teamCommentAccess == null ? document.getTeamCommentAccess()
+                : model.teamCommentAccess);
+        document.setTeamCanShare(model.teamCanShare == null ? document.getTeamCanShare()
+                : model.teamCanShare);
     }
 
     @DeleteMapping("{id}")
@@ -123,13 +122,14 @@ public class DocumentController {
     }
 
 
-
     @GetMapping
     public List<QDocument> getDocuments(
             @RequestParam Long creatorId,
             @RequestParam Long teamId,
-            @RequestParam boolean myfavorite
+            @RequestParam boolean myfavorite,
+            @RequestParam boolean isDeleting
     ) {
+
         List<Document> myDocuments = new ArrayList<>();
         List<QDocument> results = new ArrayList<>();
         if (!myfavorite) {
@@ -142,7 +142,11 @@ public class DocumentController {
         for (Document myDocument : myDocuments) {
             results.add(QDocument.convert(myDocument, modelMapper));
         }
-        return results;
+
+        // TODO isDeleting
+        throw new NotYetImplementedException();
+
+//        return results;
     }
 
 
