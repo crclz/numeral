@@ -40,13 +40,14 @@ public class Auth implements IAuth {
         if (cookies == null) {
             return false;
         }
+
         var username = Arrays.stream(cookies)
-                .filter(p -> p.getName().equals("username"))
+                .filter(p -> p.getName().equals("username") && p.getPath().equals("/"))
                 .map(Cookie::getValue)
                 .findFirst().orElse(null);
 
         var password = Arrays.stream(cookies)
-                .filter(p -> p.getName().equals("password"))
+                .filter(p -> p.getName().equals("password") && p.getPath().equals("/"))
                 .map(Cookie::getValue)
                 .findFirst().orElse(null);
 
@@ -75,8 +76,14 @@ public class Auth implements IAuth {
         loaded = true;
         // if not success, clear some cookie
         if (!success) {
-            response.addCookie(new Cookie("username", null));
-            response.addCookie(new Cookie("password", null));
+            var cookie1 = new Cookie("username", null);
+            cookie1.setPath("/");
+
+            var cookie2 = new Cookie("password", null);
+            cookie2.setPath("/");
+
+            response.addCookie(cookie1);
+            response.addCookie(cookie2);
         }
     }
 
