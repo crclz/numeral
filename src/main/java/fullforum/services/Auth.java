@@ -42,12 +42,12 @@ public class Auth implements IAuth {
         }
 
         var username = Arrays.stream(cookies)
-                .filter(p -> p.getName().equals("username") && p.getPath().equals("/"))
+                .filter(p -> p.getName().equals("username") && (p.getPath() == null || p.getPath().equals("/")))
                 .map(Cookie::getValue)
                 .findFirst().orElse(null);
 
         var password = Arrays.stream(cookies)
-                .filter(p -> p.getName().equals("password") && p.getPath().equals("/"))
+                .filter(p -> p.getName().equals("password") && (p.getPath() == null || p.getPath().equals("/")))
                 .map(Cookie::getValue)
                 .findFirst().orElse(null);
 
