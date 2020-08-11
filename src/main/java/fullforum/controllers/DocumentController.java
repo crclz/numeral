@@ -144,9 +144,11 @@ public class DocumentController {
         }
 
         // TODO isDeleting
-        throw new NotYetImplementedException();
+        if (isDeleting) {
+            throw new NotYetImplementedException();
+        }
 
-//        return results;
+        return results;
     }
 
 
