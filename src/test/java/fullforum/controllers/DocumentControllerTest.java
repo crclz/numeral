@@ -185,7 +185,7 @@ public class DocumentControllerTest extends BaseTest {
     @Test
     void getDocumentById_return_null_when_document_not_exist() {
         var doc = documentController.getDocumentById(1L);
-       assertThat(doc).isNull();
+        assertThat(doc).isNull();
     }
 
     @Test
@@ -205,7 +205,7 @@ public class DocumentControllerTest extends BaseTest {
     //test getDocuments
     @Test
 
-    void getDocumentById_return_list_of_document_infos_when_document_exist() {
+    void getDocuments_return_list_of_document_infos_when_document_exist() {
 
         var docEntity1 = new Document(1, 2, "qwqqqq", "sawqewqe", "sqdqwe");
         var docEntity2 = new Document(2, 2, "aa", "wwwqewsdqe", "sqdqsswe");
@@ -227,7 +227,6 @@ public class DocumentControllerTest extends BaseTest {
         var creatorId = 3L;
         var teamId = 5L;
         List<QDocument> documentList1 = documentController.getDocuments(creatorId, teamId, false, false);
-        assertThat(documentList1.size()).isNotZero();
         for (QDocument qDocument:documentList1) {
             assertThat(qDocument.getCreatorId()).isEqualTo(creatorId);
             assertThat(qDocument.getTeamId().longValue()).isEqualTo(teamId);

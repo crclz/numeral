@@ -75,7 +75,7 @@ public class FavoriteControllerTest extends BaseTest{
     }
 
     @Test
-    void removeDocument_throw_NotFoundException_when_favorite_is_not_exist() {
+    void removeFavorite_throw_NotFoundException_when_favorite_is_not_exist() {
         auth.setRealUserId(1);
         assertThrows(NotFoundException.class, () -> favoritesController.removeFavorite(1L));
     }
@@ -113,7 +113,7 @@ public class FavoriteControllerTest extends BaseTest{
         assertThat(favorite.getUserId()).isEqualTo(2);
         assertThat(favorite.getDocumentId()).isEqualTo(3);
     }
- 
+
     //test getFavoriteByDocumentId
     @Test
     void getFavoriteByDocumentId_throw_UnauthorizedException_when_user_is_not_login() {

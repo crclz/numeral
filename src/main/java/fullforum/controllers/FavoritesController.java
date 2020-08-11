@@ -73,7 +73,6 @@ public class FavoritesController {
         if (!auth.isLoggedIn()) {
             throw new UnauthorizedException();
         }
-
         return favoriteRepository.findByUserIdAndDocumentId(auth.userId(), documentId);
     }
 }

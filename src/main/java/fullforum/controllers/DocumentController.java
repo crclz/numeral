@@ -124,8 +124,6 @@ public class DocumentController {
             @RequestParam(required = false) Boolean myfavorite,
             @RequestParam(required = false) Boolean isAbandoned
     ) {
-
-        System.out.println(creatorId + " " + teamId + " " + myfavorite + " " + isAbandoned);
         List results;
         List<QDocument> documents = new ArrayList<>();
 
