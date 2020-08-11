@@ -88,6 +88,26 @@ public class Document extends RootEntity {
         modifyCount++;
         this.lastModifierId = modifierId;
     }
+
+    @Override
+    public String toString() {
+        return "Document{" +
+                "creatorId=" + creatorId +
+                ", teamId=" + teamId +
+                ", title='" + title + '\'' +
+                ", description='" + description + '\'' +
+                ", isAbandoned=" + isAbandoned +
+                ", publicDocumentAccess=" + publicDocumentAccess +
+                ", publicCommentAccess=" + publicCommentAccess +
+                ", publicCanShare=" + publicCanShare +
+                ", teamDocumentAccess=" + teamDocumentAccess +
+                ", teamCommentAccess=" + teamCommentAccess +
+                ", teamCanShare=" + teamCanShare +
+                ", lastModifierId=" + lastModifierId +
+                ", data='" + data + '\'' +
+                ", modifyCount=" + modifyCount +
+                '}';
+    }
 }
 
 

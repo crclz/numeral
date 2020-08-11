@@ -2,6 +2,7 @@ package fullforum.controllers;
 
 import fullforum.data.models.Access;
 import fullforum.data.models.Document;
+import fullforum.data.models.Favorite;
 import fullforum.data.repos.DocumentRepository;
 import fullforum.dto.in.CreateDocumentModel;
 import fullforum.dto.in.PatchDocumentModel;
@@ -12,11 +13,14 @@ import fullforum.errhand.NotFoundException;
 import fullforum.errhand.UnauthorizedException;
 import fullforum.services.IAuth;
 import fullforum.services.Snowflake;
+import org.hibernate.cfg.NotYetImplementedException;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
+import javax.persistence.EntityManager;
+import javax.print.Doc;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -35,6 +39,9 @@ public class DocumentController {
 
     @Autowired
     ModelMapper modelMapper;
+
+    @Autowired
+    EntityManager entityManager;
 
 
     @PostMapping
@@ -60,7 +67,6 @@ public class DocumentController {
         }
 
         if (document.getPublicDocumentAccess().equals(Access.ReadWrite) || auth.userId() == document.getCreatorId()) {
-
             document.setData(model.data == null ? document.getData() : model.data);
             document.setTitle(model.title == null ? document.getTitle() : model.title);
             document.setDescription(model.description == null ? document.getDescription() : model.description);
@@ -111,26 +117,59 @@ public class DocumentController {
     }
 
 
-
     @GetMapping
     public List<QDocument> getDocuments(
-            @RequestParam Long creatorId,
-            @RequestParam Long teamId,
-            @RequestParam boolean myfavorite
+            @RequestParam(required = false) Long creatorId,
+            @RequestParam(required = false) Long teamId,
+            @RequestParam(required = false) Boolean myfavorite,
+            @RequestParam(required = false) Boolean isAbandoned
     ) {
-        List<Document> myDocuments = new ArrayList<>();
-        List<QDocument> results = new ArrayList<>();
-        if (!myfavorite) {
-            if (creatorId != null) {
-                myDocuments = documentRepository.findAllByCreatorId(creatorId);
-            } else {
-                myDocuments = documentRepository.findAllByTeamId(teamId);
+
+        System.out.println(creatorId + " " + teamId + " " + myfavorite + " " + isAbandoned);
+        List results;
+        List<QDocument> documents = new ArrayList<>();
+
+        if (myfavorite != null && myfavorite) {
+            if (!auth.isLoggedIn()) {
+                throw new UnauthorizedException();
             }
+            var query = entityManager.createQuery(
+                    "select d from Document d join Favorite f" +
+                            " on d.id = f.documentId" +
+                            " where f.userId = :userId")
+                    .setParameter("userId", auth.userId());
+            results = query.getResultList();
+            for (var result : results) {
+                var objs = (Object[]) result;
+                var document = (Document)objs[0];
+                documents.add(QDocument.convert(document, modelMapper));
+            }
+            return documents;
+
+        } else if (isAbandoned != null && isAbandoned) {
+            if (!auth.isLoggedIn()) {
+                throw new UnauthorizedException();
+            }
+            var query = entityManager.createQuery(
+                    "select d from Document d" +
+                            " where d.creatorId = :userId " +
+                            " and d.isAbandoned = true")
+                    .setParameter("userId", auth.userId());
+            results = query.getResultList();
+        } else {
+            var query = entityManager.createQuery(
+                    "select d from Document d" +
+                            " where (:creatorId is null or d.creatorId = :creatorId)" +
+                            " and (:teamId is null or d.teamId = :teamId)")
+                    .setParameter("creatorId", creatorId)
+                    .setParameter("teamId", teamId);
+            results = query.getResultList();
         }
-        for (Document myDocument : myDocuments) {
-            results.add(QDocument.convert(myDocument, modelMapper));
+        for (var result : results) {
+            var document = (Document)result;
+            documents.add(QDocument.convert(document, modelMapper));
         }
-        return results;
+        return documents;
     }
 
 
