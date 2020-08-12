@@ -89,6 +89,7 @@ public class DocumentController {
                     : model.teamCanShare);
         }
         document.updatedAtNow();
+        document.setModifyCountAndModifier(auth.userId());
         documentRepository.save(document);
 
     }
