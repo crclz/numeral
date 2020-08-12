@@ -91,6 +91,9 @@ public class DocumentController {
             document.setTeamCanShare(model.teamCanShare == null ? document.getTeamCanShare()
                     : model.teamCanShare);
         }
+        document.updatedAtNow();
+        documentRepository.save(document);
+
     }
 
     @DeleteMapping("{id}")
@@ -135,7 +138,8 @@ public class DocumentController {
             var query = entityManager.createQuery(
                     "select d from Document d join Favorite f" +
                             " on d.id = f.documentId" +
-                            " where f.userId = :userId")
+                            " where f.userId = :userId" +
+                            " and f.isAbandoned = false")
                     .setParameter("userId", auth.userId());
             results = query.getResultList();
             for (var result : results) {
@@ -159,7 +163,8 @@ public class DocumentController {
             var query = entityManager.createQuery(
                     "select d from Document d" +
                             " where (:creatorId is null or d.creatorId = :creatorId)" +
-                            " and (:teamId is null or d.teamId = :teamId)")
+                            " and (:teamId is null or d.teamId = :teamId)" +
+                            " and d.isAbandoned = false")
                     .setParameter("creatorId", creatorId)
                     .setParameter("teamId", teamId);
             results = query.getResultList();

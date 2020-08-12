@@ -44,7 +44,7 @@ public class CommentControllerTest extends BaseTest{
     //test createComment
 
     @Test
-    void creatFComment_throw_UnauthorizedException_when_user_is_not_log_in() {
+    void creatComment_throw_UnauthorizedException_when_user_is_not_log_in() {
         var model = new CreateCommentModel(1L, "hahaha");
         assertThrows(UnauthorizedException.class, () -> commentsController.createComment(model));
     }
@@ -52,6 +52,7 @@ public class CommentControllerTest extends BaseTest{
     @Test
     void creatComment_throw_NotFoundException_when_document_is_not_exist() {
         auth.setRealUserId(1);
+        
         var model = new CreateCommentModel(1L, "hahaha");
         assertThrows(NotFoundException.class, () -> commentsController.createComment(model));
     }

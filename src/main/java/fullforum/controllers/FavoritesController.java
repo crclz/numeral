@@ -65,8 +65,7 @@ public class FavoritesController {
     // 图省事，就把Favorite当作返回值，不去用新的dto了
     @GetMapping("{id}")
     public Favorite getFavoriteById(@PathVariable Long id) {
-        var favorite = favoriteRepository.findById(id).orElse(null);
-        return favorite;
+        return favoriteRepository.findById(id).orElse(null);
     }
 
     @ApiOperation("获取当前用户对于某document的favorite。如果无，则返回null")
