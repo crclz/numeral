@@ -71,7 +71,7 @@ public class TeamRequestsController {
         }
 
         // 没有已经存在[且未处理]request，才能发送
-        var existingRequest = teamRequestRepository.findByUserIdAndTeamIdAndHandled(auth.userId(), model.teamId,false);
+        var existingRequest = teamRequestRepository.findByUserIdAndTeamIdAndIsHandled(auth.userId(), model.teamId,false);
         if (existingRequest != null) {
             throw new BadRequestException(ErrorCode.UniqueViolation, "你已经发送过请求，且请求未被处理");
         }
