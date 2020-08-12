@@ -25,6 +25,7 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.persistence.EntityManager;
 import javax.transaction.Transactional;
+import javax.validation.Valid;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -59,7 +60,7 @@ public class TeamRequestsController {
 
 
     @PostMapping
-    public IdDto createTeamRequest(@RequestBody CreateTeamRequestModel model) {
+    public IdDto createTeamRequest(@RequestBody @Valid CreateTeamRequestModel model) {
         if (!auth.isLoggedIn()) {
             throw new UnauthorizedException();
         }
@@ -88,7 +89,7 @@ public class TeamRequestsController {
     }
 
     @PatchMapping("{id}")
-    public void patchTeamRequest(@RequestBody PatchTeamRequestModel model, @PathVariable Long id) {
+    public void patchTeamRequest(@RequestBody @Valid PatchTeamRequestModel model, @PathVariable Long id) {
         // 注意，当该Request.isHandled为true时，抛出BadRequest：该请求已经被处理
 
         // 如果agree，那么涉及到Membership的增加

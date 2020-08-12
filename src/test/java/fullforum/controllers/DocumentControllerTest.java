@@ -42,22 +42,22 @@ public class DocumentControllerTest extends BaseTest {
 
 
 
-    @Test
-    void createDocument_throw_IllegalArgumentException_when_model_is_invalid() {
-
-        auth.setRealUserId(1);
-        var model1 = new CreateDocumentModel();
-        model1.data = "hahaha";
-        model1.title = "";
-        model1.description = "ddddd";
-        var model2 = new CreateDocumentModel();
-        model2.data = "hahaha";
-        model2.title = "ttt";
-        model2.description = "11111111111111111111111111111111111111111111111111111111111111111111111111111111" +
-                "11111111111111111111111111111111111111111111111111111111111111111111111111111111";//160
-        assertThrows(IllegalArgumentException.class, () -> documentController.createDocument(model1));
-        assertThrows(IllegalArgumentException.class, () -> documentController.createDocument(model2));
-    }
+//    @Test
+//    void createDocument_throw_IllegalArgumentException_when_model_is_invalid() {
+//
+//        auth.setRealUserId(1);
+//        var model1 = new CreateDocumentModel();
+//        model1.data = "hahaha";
+//        model1.title = "";
+//        model1.description = "ddddd";
+//        var model2 = new CreateDocumentModel();
+//        model2.data = "hahaha";
+//        model2.title = "ttt";
+//        model2.description = "11111111111111111111111111111111111111111111111111111111111111111111111111111111" +
+//                "11111111111111111111111111111111111111111111111111111111111111111111111111111111";//160
+//        assertThrows(IllegalArgumentException.class, () -> documentController.createDocument(model1));
+//        assertThrows(IllegalArgumentException.class, () -> documentController.createDocument(model2));
+//    }
 
     @Test
     void createDocument_throw_UnauthorizedException_when_user_is_not_login() {

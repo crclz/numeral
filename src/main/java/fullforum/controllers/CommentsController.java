@@ -24,6 +24,7 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.persistence.EntityManager;
 import javax.transaction.Transactional;
+import javax.validation.Valid;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -53,7 +54,7 @@ public class CommentsController {
     UserRepository userRepository;
 
     @PostMapping
-    public IdDto createComment(@RequestBody CreateCommentModel model) {
+    public IdDto createComment(@RequestBody @Valid CreateCommentModel model) {
         if (!auth.isLoggedIn()) {
             throw new UnauthorizedException();
         }

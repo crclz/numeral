@@ -78,7 +78,7 @@ public class ArticlesController {
     }
 
     @PatchMapping("{id}")
-    public void patchArticle(@PathVariable long id, PatchArticleModel model) {
+    public void patchArticle(@PathVariable long id, @RequestBody @Valid PatchArticleModel model) {
         if (!auth.isLoggedIn()) {
             throw new UnauthorizedException();
         }

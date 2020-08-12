@@ -21,6 +21,7 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.persistence.EntityManager;
 import javax.transaction.Transactional;
+import javax.validation.Valid;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -52,7 +53,7 @@ public class TeamsController {
 
 
     @PostMapping
-    public IdDto createTeam(@RequestBody CreateTeamModel model) {
+    public IdDto createTeam(@RequestBody @Valid CreateTeamModel model) {
         if (!auth.isLoggedIn()) {
             throw new UnauthorizedException();
         }
@@ -66,7 +67,7 @@ public class TeamsController {
     }
 
     @PatchMapping("{id}")
-    public void patchTeam(@PathVariable Long id, @RequestBody PatchTeamModel model) {
+    public void patchTeam(@PathVariable Long id, @RequestBody @Valid PatchTeamModel model) {
         if (!auth.isLoggedIn()) {
             throw new UnauthorizedException();
         }

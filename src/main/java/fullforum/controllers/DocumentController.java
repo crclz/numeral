@@ -19,6 +19,7 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.persistence.EntityManager;
 import javax.transaction.Transactional;
+import javax.validation.Valid;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -44,7 +45,7 @@ public class DocumentController {
 
 
     @PostMapping
-    public IdDto createDocument(@RequestBody CreateDocumentModel model) {
+    public IdDto createDocument(@RequestBody @Valid CreateDocumentModel model) {
         if (!auth.isLoggedIn()) {
             throw new UnauthorizedException();
         }
@@ -55,7 +56,7 @@ public class DocumentController {
 
     @PatchMapping("{id}")
 
-    public void patchDocument(@RequestBody PatchDocumentModel model, @PathVariable long id) {
+    public void patchDocument(@RequestBody @Valid PatchDocumentModel model, @PathVariable long id) {
         if (!auth.isLoggedIn()) {
             throw new UnauthorizedException();
         }
