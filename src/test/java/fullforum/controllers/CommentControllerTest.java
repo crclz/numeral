@@ -47,7 +47,7 @@ public class CommentControllerTest extends BaseTest{
 
     @Test
     void creatComment_throw_ForbidException_when_document_CommentAccess_is_not_ReadWrite() {
-        auth.setRealUserId(1);
+        auth.setRealUserId(3333333);
         var document = new Document(2, 1, "hahah",  "model1.description", "model1.data");
         document.setPublicCommentAccess(Access.Read);
         documentRepository.save(document);
