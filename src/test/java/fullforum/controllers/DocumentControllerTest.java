@@ -119,7 +119,6 @@ public class DocumentControllerTest extends BaseTest {
 
         assertThrows(ForbidException.class, () -> documentController.patchDocument(patch, 1));
     }
-//
 
     @Test
     void patchDocument_throw_NotFoundException_when_document_is_not_exist(){
@@ -204,7 +203,6 @@ public class DocumentControllerTest extends BaseTest {
 
     //test getDocuments
     @Test
-
     void getDocuments_return_list_of_document_infos_when_document_exist() {
 
         var docEntity1 = new Document(1, 2, "qwqqqq", "sawqewqe", "sqdqwe");
