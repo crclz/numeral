@@ -58,7 +58,7 @@ public class TeamRequestControllerTest extends BaseTest {
     }
 
     @Test
-    void creatTeamRequest_return_id_and_update_db_when_all_ok(){
+    void creatTeamRequest_return_id_and_update_db_when_all_ok() {
         auth.setRealUserId(1);
 
         var model = new CreateTeamRequestModel(1L);
@@ -96,7 +96,7 @@ public class TeamRequestControllerTest extends BaseTest {
     }
 
     @Test
-    void patchTeam_throw_NotFoundException_when_team_is_not_exist(){
+    void patchTeam_throw_NotFoundException_when_team_is_not_exist() {
         auth.setRealUserId(1);
         var patch = new PatchTeamRequestModel(true);
         assertThrows(NotFoundException.class, () -> teamRequestsController.patchTeamRequest(patch, 1L));
@@ -115,7 +115,7 @@ public class TeamRequestControllerTest extends BaseTest {
         teamRequestsController.patchTeamRequest(patch, 5L);
         var requestInDb = teamRequestRepository.findById(request.getId()).orElse(null);
 
-        var membershipInDb = membershipRepository.findByUserId(request.getUserId());
+        var membershipInDb = membershipRepository.findByUserIdAndTeamId(request.getUserId(), team.getId());
 
         assertNotNull(requestInDb);
         assertNotNull(membershipInDb);
@@ -147,7 +147,7 @@ public class TeamRequestControllerTest extends BaseTest {
         assertThat(qRequest.getUserId()).isEqualTo(3L);
     }
 
-//    //test getTeamRequests
+    //    //test getTeamRequests
     @Test
     void getTeamRequestss_return_list_of_request_infos() {
         auth.setRealUserId(1);

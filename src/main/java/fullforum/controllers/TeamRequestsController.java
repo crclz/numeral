@@ -58,16 +58,14 @@ public class TeamRequestsController {
     TeamRepository teamRepository;
 
 
-
-
-
     @PostMapping
     public IdDto createTeamRequest(@RequestBody CreateTeamRequestModel model) {
         // 没有membership才允许发送请求
         if (!auth.isLoggedIn()) {
             throw new UnauthorizedException();
         }
-        var membership = membershipRepository.findByUserId(auth.userId());
+        var membership = membershipRepository.findByUserIdAndTeamId(auth.userId(), model.teamId);
+
         var team = teamRepository.findById(model.teamId).orElse(null);
         if (team == null) {
             throw new NotFoundException();
@@ -144,8 +142,8 @@ public class TeamRequestsController {
                 .setParameter("isHandled", isHandled)
                 .setParameter("isAgree", isAgree);
         var results = query.getResultList();
-        for (var result:results) {
-            var teamRequest = (TeamRequest)result;
+        for (var result : results) {
+            var teamRequest = (TeamRequest) result;
             var qUser = Quser.convert(userRepository.findById(teamRequest.getUserId()).orElse(null), mapper);
             var qTeam = QTeam.convert(teamRepository.findById(teamRequest.getTeamId()).orElse(null), mapper);
 
