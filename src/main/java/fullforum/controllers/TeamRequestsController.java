@@ -82,7 +82,7 @@ public class TeamRequestsController {
         }
 
 
-        var teamRequest = new TeamRequest(snowflake.nextId(), model.teamId, auth.userId());
+        var teamRequest = new TeamRequest(snowflake.nextId(), auth.userId(), model.teamId);
         teamRequestRepository.save(teamRequest);
         return new IdDto(teamRequest.getId());
     }
