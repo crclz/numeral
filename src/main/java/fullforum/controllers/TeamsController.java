@@ -1,5 +1,6 @@
 package fullforum.controllers;
 
+import fullforum.data.models.Membership;
 import fullforum.data.models.Team;
 import fullforum.data.repos.MembershipRepository;
 import fullforum.data.repos.TeamRepository;
@@ -57,6 +58,10 @@ public class TeamsController {
         }
         var team = new Team(snowflake.nextId(), auth.userId(), model.name, model.description);
         teamRepository.save(team);
+
+        var membership = new Membership(snowflake.nextId(), team.getId(), auth.userId());
+        membershipRepository.save(membership);
+
         return new IdDto(team.getId());
     }
 
@@ -120,15 +125,14 @@ public class TeamsController {
                         " where (:leaderId is null or t.leaderId = :leaderId)" +
                         " and (:teamNameKeyword is null or t.name like :keywordExpr)")
                 .setParameter("leaderId", leaderId)
-                .setParameter("teamNameKeyword", teamNameKeyword )
+                .setParameter("teamNameKeyword", teamNameKeyword)
                 .setParameter("keywordExpr", "%" + teamNameKeyword + "%");
         var results = query.getResultList();
-        for (var result:results) {
-            qTeams.add(QTeam.convert((Team)result, mapper));
+        for (var result : results) {
+            qTeams.add(QTeam.convert((Team) result, mapper));
         }
         return qTeams;
     }
-
 
 
 }
