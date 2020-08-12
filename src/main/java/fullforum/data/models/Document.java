@@ -40,7 +40,7 @@ public class Document extends RootEntity {
 
     @Getter
     @Setter
-    private Boolean publicCanShare = false;
+    private Boolean publicCanShare = true;
 
     @Getter
     @Setter
@@ -52,7 +52,7 @@ public class Document extends RootEntity {
 
     @Getter
     @Setter
-    private Boolean teamCanShare = false;
+    private Boolean teamCanShare = true;
 
     @Getter
     private Long lastModifierId;
