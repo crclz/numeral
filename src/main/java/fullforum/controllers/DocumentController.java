@@ -140,8 +140,7 @@ public class DocumentController {
                     .setParameter("userId", auth.userId());
             results = query.getResultList();
             for (var result : results) {
-                var objs = (Object[]) result;
-                var document = (Document) objs[0];
+                var document = (Document) result;
                 documents.add(QDocument.convert(document, modelMapper));
             }
             return documents;
