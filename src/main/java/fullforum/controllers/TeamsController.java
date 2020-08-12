@@ -1,12 +1,11 @@
 package fullforum.controllers;
 
-import fullforum.data.models.Membership;
 import fullforum.data.models.Team;
 import fullforum.data.repos.MembershipRepository;
 import fullforum.data.repos.TeamRepository;
 import fullforum.data.repos.UserRepository;
-import fullforum.dto.in.PatchTeamModel;
 import fullforum.dto.in.CreateTeamModel;
+import fullforum.dto.in.PatchTeamModel;
 import fullforum.dto.out.IdDto;
 import fullforum.dto.out.QTeam;
 import fullforum.errhand.ForbidException;
@@ -14,7 +13,6 @@ import fullforum.errhand.NotFoundException;
 import fullforum.errhand.UnauthorizedException;
 import fullforum.services.IAuth;
 import fullforum.services.Snowflake;
-import org.hibernate.cfg.NotYetImplementedException;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.annotation.Validated;
@@ -22,7 +20,6 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.persistence.EntityManager;
 import javax.transaction.Transactional;
-import java.lang.reflect.Member;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -121,9 +118,10 @@ public class TeamsController {
         var query = entityManager.createQuery(
                 "select t from Team t" +
                         " where (:leaderId is null or t.leaderId = :leaderId)" +
-                        " and (:teamNameKeyword is null or t.name like :teamNameKeyword)")
+                        " and (:teamNameKeyword is null or t.name like :keywordExpr)")
                 .setParameter("leaderId", leaderId)
-                .setParameter("teamNameKeyword", "%" + teamNameKeyword + "%");
+                .setParameter("teamNameKeyword", teamNameKeyword )
+                .setParameter("keywordExpr", "%" + teamNameKeyword + "%");
         var results = query.getResultList();
         for (var result:results) {
             qTeams.add(QTeam.convert((Team)result, mapper));
