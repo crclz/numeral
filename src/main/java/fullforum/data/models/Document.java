@@ -32,11 +32,11 @@ public class Document extends RootEntity {
 
     @Getter
     @Setter
-    private Access publicDocumentAccess = Access.None;
+    private Access publicDocumentAccess = Access.ReadWrite;
 
     @Getter
     @Setter
-    private Access publicCommentAccess = Access.None;
+    private Access publicCommentAccess = Access.ReadWrite;
 
     @Getter
     @Setter
@@ -44,11 +44,11 @@ public class Document extends RootEntity {
 
     @Getter
     @Setter
-    private Access teamDocumentAccess = Access.None;
+    private Access teamDocumentAccess = Access.ReadWrite;
 
     @Getter
     @Setter
-    private Access teamCommentAccess = Access.None;
+    private Access teamCommentAccess = Access.ReadWrite;
 
     @Getter
     @Setter
