@@ -1,8 +1,15 @@
 package fullforum.dto.in;
 
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 
+@Data
+@AllArgsConstructor
+@NoArgsConstructor
 public class CreateCommentModel {
     @NotNull
     public Long documentId;
@@ -10,9 +17,4 @@ public class CreateCommentModel {
     @NotNull
     @Size(min = 1, max = 140)
     public String content;
-
-    public CreateCommentModel(@NotNull Long documentId, @NotNull @Size(min = 1, max = 140) String content) {
-        this.documentId = documentId;
-        this.content = content;
-    }
 }

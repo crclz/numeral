@@ -1,8 +1,10 @@
 package fullforum.dto.in;
 
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 
+@Data
+@AllArgsConstructor
+@NoArgsConstructor
 public class DocumentTestModel {
     public String data;
 

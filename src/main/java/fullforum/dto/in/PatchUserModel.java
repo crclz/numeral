@@ -1,7 +1,14 @@
 package fullforum.dto.in;
 
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
 import javax.validation.constraints.Size;
 
+@Data
+@AllArgsConstructor
+@NoArgsConstructor
 public class PatchUserModel {
     @Size(min = 6, max = 32)
     public String password;
@@ -10,13 +17,4 @@ public class PatchUserModel {
     public String description;
 
     public String avatarUrl;
-
-    public PatchUserModel() {
-    }
-
-    public PatchUserModel(@Size(min = 6, max = 32) String password, @Size(max = 32) String description, String avatarUrl) {
-        this.password = password;
-        this.description = description;
-        this.avatarUrl = avatarUrl;
-    }
 }

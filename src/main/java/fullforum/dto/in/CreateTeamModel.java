@@ -1,8 +1,15 @@
 package fullforum.dto.in;
 
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 
+@Data
+@AllArgsConstructor
+@NoArgsConstructor
 public class CreateTeamModel {
 
     @NotNull
@@ -12,9 +19,4 @@ public class CreateTeamModel {
     @NotNull
     @Size(max = 400)
     public String description;
-
-    public CreateTeamModel(@NotNull @Size(min = 1, max = 16) String name, @NotNull @Size(max = 400) String description) {
-        this.name = name;
-        this.description = description;
-    }
 }
