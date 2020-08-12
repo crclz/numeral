@@ -78,6 +78,7 @@ public class TeamsController {
 
         team.setDescription(model.description == null ? team.getDescription() : model.description);
         team.setName(model.name == null ? team.getName() : model.name);
+        team.updatedAtNow();
         teamRepository.save(team);
     }
 
