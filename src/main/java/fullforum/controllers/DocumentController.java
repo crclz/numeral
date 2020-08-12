@@ -136,7 +136,7 @@ public class DocumentController {
                     "select d from Document d join Favorite f" +
                             " on d.id = f.documentId" +
                             " where f.userId = :userId" +
-                            " and f.isAbandoned = false")
+                            " and d.isAbandoned = false")
                     .setParameter("userId", auth.userId());
             results = query.getResultList();
             for (var result : results) {

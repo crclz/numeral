@@ -130,12 +130,6 @@ public class TeamsController {
         return qTeams;
     }
 
-    //addUserToTeam
-    //addDocumentToTeam
-    //removeUserFromTeam
-    //removeDocumentToTeam
-
-
 
 
 }
