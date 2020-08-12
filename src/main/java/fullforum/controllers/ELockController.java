@@ -44,6 +44,7 @@ public class ELockController {
     @Autowired
     ModelMapper modelMapper;
 
+    // TODO: 写测试
     @PostMapping("acquire")
     public AcquireLockResult acquireLock(@RequestParam Long documentId) {
         if (!auth.isLoggedIn()) {
@@ -72,9 +73,9 @@ public class ELockController {
         } else {
             // failure. return the owner info
             var owner = userRepository.findById(lock.getLastOwnerId()).orElseThrow();
-            var result = new AcquireLockResult(false, Quser.convert(owner, mo));
+            var result = new AcquireLockResult(false, Quser.convert(owner, modelMapper));
+            return result;
         }
-
     }
 
 }
