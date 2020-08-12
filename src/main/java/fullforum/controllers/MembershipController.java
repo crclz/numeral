@@ -93,12 +93,11 @@ public class MembershipController {
     }
 
     @GetMapping
-    public List<Membership> getMemberships(
+    public List<QMembership> getMemberships(
             @RequestParam(required = false) Long teamId,
             @RequestParam(required = false) Long userId
     ) {
-//        var qMemberships = new ArrayList<QMembership>();
-        var memberships = new ArrayList<Membership>();
+        var qMemberships = new ArrayList<QMembership>();
         var query = entityManager.createQuery(
                 "select m from Membership m" +
                         " where (:userId is null or m.userId = :userId)" +
@@ -108,13 +107,12 @@ public class MembershipController {
         var results = query.getResultList();
         for (var result:results) {
             var membership = (Membership) result;
-//            var qUser = Quser.convert(userRepository.findById(membership.getUserId()).orElse(null), mapper);
-//            var qTeam = QTeam.convert(teamRepository.findById(membership.getTeamId()).orElse(null), mapper);
+            var qUser = Quser.convert(userRepository.findById(membership.getUserId()).orElse(null), mapper);
+            var qTeam = QTeam.convert(teamRepository.findById(membership.getTeamId()).orElse(null), mapper);
 
-//            qMemberships.add(QMembership.convert(membership, mapper, qUser, qTeam));
-            memberships.add(membership);
+            qMemberships.add(QMembership.convert(membership, mapper, qUser, qTeam));
         }
-//        return qMemberships;
-        return memberships;
+        return qMemberships;
+
     }
 }
