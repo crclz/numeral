@@ -60,24 +60,31 @@ public class TeamRequestsController {
 
     @PostMapping
     public IdDto createTeamRequest(@RequestBody CreateTeamRequestModel model) {
-        // 没有membership才允许发送请求
         if (!auth.isLoggedIn()) {
             throw new UnauthorizedException();
         }
         var membership = membershipRepository.findByUserIdAndTeamId(auth.userId(), model.teamId);
+
+        // 没有membership才允许发送请求
+        if (membership != null) {
+            throw new ForbidException();
+        }
+
+        // 没有已经存在的request，才能发送
+        var existingRequest = teamRequestRepository.findByUserIdAndTeamId(auth.userId(), model.teamId);
+        if (existingRequest != null) {
+            throw new BadRequestException(ErrorCode.UniqueViolation, "你已经发送过请求，且请求未被处理");
+        }
 
         var team = teamRepository.findById(model.teamId).orElse(null);
         if (team == null) {
             throw new NotFoundException();
         }
 
-        if (membership == null) {
-            var teamRequest = new TeamRequest(snowflake.nextId(), model.teamId, auth.userId());
-            teamRequestRepository.save(teamRequest);
-            return new IdDto(teamRequest.getId());
-        } else {
-            throw new ForbidException();
-        }
+
+        var teamRequest = new TeamRequest(snowflake.nextId(), model.teamId, auth.userId());
+        teamRequestRepository.save(teamRequest);
+        return new IdDto(teamRequest.getId());
     }
 
     @PatchMapping("{id}")
