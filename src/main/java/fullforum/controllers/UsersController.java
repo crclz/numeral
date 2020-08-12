@@ -60,7 +60,15 @@ public class UsersController {
             throw new ForbidException();
         }
         // check ok
-        user.setPassword(model.password);
+        if (model.password != null) {
+            user.setPassword(model.password);
+        }
+        if (model.description != null) {
+            user.setDescription(model.description);
+        }
+        if (model.avatarUrl != null) {
+            user.setAvatarUrl(model.avatarUrl);
+        }
         userRepository.save(user);
     }
 

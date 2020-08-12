@@ -61,8 +61,11 @@ public class CommentsController {
         if (document == null) {
             throw new NotFoundException();
         }
-        if (!document.getPublicCommentAccess().equals(Access.ReadWrite)) {
-            throw new ForbidException();
+        // 例外：文档创建者自己可以进行评论读写
+        if (auth.userId() != document.getCreatorId()) {
+            if (!document.getPublicCommentAccess().equals(Access.ReadWrite)) {
+                throw new ForbidException();
+            }
         }
         var comment = new Comment(snowflake.nextId(), model.documentId, auth.userId(), model.content);
         commentRepository.save(comment);
@@ -110,7 +113,7 @@ public class CommentsController {
 
         var results = query.getResultList();
         for (var result : results) {
-            var comment = (Comment)result;
+            var comment = (Comment) result;
             var qUser = Quser.convert(userRepository.findById(comment.getUserId()).orElse(null), mapper);
             comments.add(QComment.convert(comment, qUser, mapper));
         }
