@@ -10,4 +10,5 @@ public enum ErrorCode {
     WrongPassword,
     EntityNotExist,
     FileTooLarge,
+    RaceFailure,
 }
