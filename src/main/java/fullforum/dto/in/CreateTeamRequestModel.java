@@ -7,4 +7,8 @@ import javax.validation.constraints.Size;
 public class CreateTeamRequestModel {
     @NotNull
     public Long teamId;
+
+    public CreateTeamRequestModel(@NotNull Long teamId) {
+        this.teamId = teamId;
+    }
 }

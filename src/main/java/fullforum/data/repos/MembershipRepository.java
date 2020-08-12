@@ -10,4 +10,6 @@ public interface MembershipRepository extends JpaRepository<Membership, Long> {
     List<Membership>findAllByTeamId(Long teamId);
 
     void deleteAllByTeamId(Long teamId);
+
+    Membership findByUserId(Long userId);
 }
