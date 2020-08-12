@@ -7,7 +7,7 @@ import lombok.Setter;
 import org.modelmapper.ModelMapper;
 
 @Data
-public class QTeam {
+public class QTeam extends BaseQDto {
     private Long leaderId;
     private String name;
     private String description;
