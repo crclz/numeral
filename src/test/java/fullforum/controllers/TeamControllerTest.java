@@ -47,7 +47,7 @@ public class TeamControllerTest extends BaseTest {
 
 
     @Test
-    void creatComment_return_id_and_update_db_when_all_ok(){
+    void creatTeam_return_id_and_update_db_when_all_ok(){
         auth.setRealUserId(1);
         var model = new CreateTeamModel("haha", "hahaha");
         var tid = teamsController.createTeam(model);
