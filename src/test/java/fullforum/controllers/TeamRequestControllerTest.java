@@ -1,17 +1,16 @@
 package fullforum.controllers;
 
 import fullforum.BaseTest;
-import fullforum.data.models.Membership;
 import fullforum.data.models.Team;
 import fullforum.data.models.TeamRequest;
 import fullforum.data.models.User;
-import fullforum.data.repos.*;
+import fullforum.data.repos.MembershipRepository;
+import fullforum.data.repos.TeamRepository;
+import fullforum.data.repos.TeamRequestRepository;
+import fullforum.data.repos.UserRepository;
 import fullforum.dependency.FakeAuth;
-import fullforum.dto.in.CreateTeamModel;
 import fullforum.dto.in.CreateTeamRequestModel;
-import fullforum.dto.in.PatchTeamModel;
 import fullforum.dto.in.PatchTeamRequestModel;
-import fullforum.dto.out.QTeam;
 import fullforum.dto.out.QTeamRequest;
 import fullforum.errhand.ForbidException;
 import fullforum.errhand.NotFoundException;
@@ -23,7 +22,6 @@ import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class TeamRequestControllerTest extends BaseTest {
     @Autowired
@@ -51,13 +49,13 @@ public class TeamRequestControllerTest extends BaseTest {
         var model = new CreateTeamRequestModel(1L);
         assertThrows(UnauthorizedException.class, () -> teamRequestsController.createTeamRequest(model));
     }
+
     @Test
     void creatTeamRequest_throw_NotFoundException_when_team_is_not_exist() {
         auth.setRealUserId(1);
         var model = new CreateTeamRequestModel(1L);
         assertThrows(NotFoundException.class, () -> teamRequestsController.createTeamRequest(model));
     }
-
 
     @Test
     void creatTeamRequest_return_id_and_update_db_when_all_ok(){
@@ -84,6 +82,7 @@ public class TeamRequestControllerTest extends BaseTest {
         var patch = new PatchTeamRequestModel(true);
         assertThrows(UnauthorizedException.class, () -> teamRequestsController.patchTeamRequest(patch, 1L));
     }
+
     @Test
     void patchTeam_throw_ForbidException_when_user_is_not_leader() {
         var team = new Team(1L, 2L, "dsad", "adsd");
@@ -102,6 +101,7 @@ public class TeamRequestControllerTest extends BaseTest {
         var patch = new PatchTeamRequestModel(true);
         assertThrows(NotFoundException.class, () -> teamRequestsController.patchTeamRequest(patch, 1L));
     }
+
     @Test
     void patchTeamRequest_return_ok_and_update_db_when_all_ok() {
         var team = new Team(1L, 2L, "dsad", "adsd");
@@ -127,7 +127,6 @@ public class TeamRequestControllerTest extends BaseTest {
     }
 
 
-
     //test getTeamRequestById
 
     @Test
@@ -150,7 +149,6 @@ public class TeamRequestControllerTest extends BaseTest {
 
 //    //test getTeamRequests
     @Test
-
     void getTeamRequestss_return_list_of_request_infos() {
         auth.setRealUserId(1);
         var requestEntity1 = new TeamRequest(1L, 2L, 3L);
@@ -165,12 +163,9 @@ public class TeamRequestControllerTest extends BaseTest {
 
         var userEntity1 = new User(2L, "Sdad", "Dasdsada", "Dasd", "Dasdas");
         userRepository.save(userEntity1);
-
         teamRepository.save(teamEntity1);
         teamRepository.save(teamEntity2);
         teamRepository.save(teamEntity3);
-
-
         teamRequestRepository.save(requestEntity1);
         teamRequestRepository.save(requestEntity2);
         teamRequestRepository.save(requestEntity3);
