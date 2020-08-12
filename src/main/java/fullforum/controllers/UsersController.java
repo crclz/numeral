@@ -64,7 +64,7 @@ public class UsersController {
             user.setPassword(model.password);
         }
         if (model.description != null) {
-            user.setDescription(model.password);
+            user.setDescription(model.description);
         }
         if (model.avatarUrl != null) {
             user.setAvatarUrl(model.avatarUrl);
