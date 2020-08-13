@@ -2,7 +2,7 @@ package fullforum.dto.out;
 
 import fullforum.data.models.Access;
 import lombok.AllArgsConstructor;
-import lombok.Data;
+
 
 @AllArgsConstructor
 public class UserPermission {

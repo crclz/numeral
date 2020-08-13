@@ -3,7 +3,6 @@ package fullforum.controllers;
 import fullforum.data.models.Access;
 import fullforum.data.models.Comment;
 import fullforum.data.models.Document;
-import fullforum.data.models.User;
 import fullforum.data.repos.*;
 import fullforum.dto.in.CreateDocumentModel;
 import fullforum.dto.in.PatchDocumentModel;
