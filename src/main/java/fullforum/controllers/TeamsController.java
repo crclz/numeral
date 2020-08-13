@@ -1,7 +1,9 @@
 package fullforum.controllers;
 
+import fullforum.data.models.Document;
 import fullforum.data.models.Membership;
 import fullforum.data.models.Team;
+import fullforum.data.repos.DocumentRepository;
 import fullforum.data.repos.MembershipRepository;
 import fullforum.data.repos.TeamRepository;
 import fullforum.data.repos.UserRepository;
@@ -47,6 +49,9 @@ public class TeamsController {
 
     @Autowired
     UserRepository userRepository;
+
+    @Autowired
+    DocumentRepository documentRepository;
 
     @Autowired
     MembershipRepository membershipRepository;
@@ -99,6 +104,12 @@ public class TeamsController {
         }
         if (team.getLeaderId() != auth.userId()) {
             throw new ForbidException();
+        }
+        var teamDocuments = documentRepository.findAllByTeamId(id);
+
+        for (Document teamDocument : teamDocuments) {
+            teamDocument.setTeamId(null);
+            documentRepository.save(teamDocument);
         }
 
         membershipRepository.deleteAllByTeamId(id);

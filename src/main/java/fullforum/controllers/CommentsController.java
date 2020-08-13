@@ -2,21 +2,16 @@ package fullforum.controllers;
 
 import fullforum.data.models.Access;
 import fullforum.data.models.Comment;
-import fullforum.data.models.Document;
-import fullforum.data.repos.CommentRepository;
-import fullforum.data.repos.DocumentRepository;
-import fullforum.data.repos.UserRepository;
+import fullforum.data.repos.*;
 import fullforum.dto.in.CreateCommentModel;
 import fullforum.dto.out.IdDto;
 import fullforum.dto.out.QComment;
-import fullforum.dto.out.QDocument;
 import fullforum.dto.out.Quser;
 import fullforum.errhand.ForbidException;
 import fullforum.errhand.NotFoundException;
 import fullforum.errhand.UnauthorizedException;
 import fullforum.services.IAuth;
 import fullforum.services.Snowflake;
-import org.hibernate.cfg.NotYetImplementedException;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.annotation.Validated;
@@ -44,14 +39,22 @@ public class CommentsController {
 
     @Autowired
     EntityManager entityManager;
+
+    @Autowired
+    TeamRepository teamRepository;
+
+    @Autowired
+    UserRepository userRepository;
+
     @Autowired
     DocumentRepository documentRepository;
 
     @Autowired
     CommentRepository commentRepository;
 
+
     @Autowired
-    UserRepository userRepository;
+    MembershipRepository membershipRepository;
 
     @PostMapping
     public IdDto createComment(@RequestBody @Valid CreateCommentModel model) {
@@ -62,15 +65,25 @@ public class CommentsController {
         if (document == null) {
             throw new NotFoundException();
         }
-        // 例外：文档创建者自己可以进行评论读写
-        if (auth.userId() != document.getCreatorId()) {
-            if (!document.getPublicCommentAccess().equals(Access.ReadWrite)) {
-                throw new ForbidException();
-            }
+
+        //检查权限
+        boolean havePermission;
+        if (auth.userId() == document.getCreatorId()) {
+            havePermission = true;
+        } else if (document.getTeamId() != null){ //团队文档
+            var membership = membershipRepository.findByUserIdAndTeamId(auth.userId(), document.getTeamId());
+            havePermission = (membership != null && document.getTeamCommentAccess().equals(Access.ReadWrite));
+        } else { //非团队文档
+            havePermission = document.getPublicCommentAccess().equals(Access.ReadWrite);
         }
-        var comment = new Comment(snowflake.nextId(), model.documentId, auth.userId(), model.content);
-        commentRepository.save(comment);
-        return new IdDto(comment.getId());
+
+        if (havePermission) {
+            var comment = new Comment(snowflake.nextId(), model.documentId, auth.userId(), model.content);
+            commentRepository.save(comment);
+            return new IdDto(comment.getId());
+        } else {
+            throw new ForbidException();
+        }
     }
 
     @DeleteMapping("{id}")
@@ -90,6 +103,10 @@ public class CommentsController {
 
     @GetMapping("{id}")
     public QComment getCommentById(@PathVariable long id) {
+        if (!auth.isLoggedIn()) {
+            throw new UnauthorizedException();
+        }
+
         var comment = commentRepository.findById(id).orElse(null);
         if (comment == null) {
             return null;
@@ -103,6 +120,36 @@ public class CommentsController {
             @RequestParam(required = false) Long documentId,
             @RequestParam(required = false) Long userId
     ) {
+        if (!auth.isLoggedIn()) {
+            throw new UnauthorizedException();
+        }
+
+        boolean havePermission = false;
+
+        if (documentId != null) {
+            var document = documentRepository.findById(documentId).orElse(null);
+            if (document == null) {
+                return new ArrayList<>();
+            }
+            if (document.getTeamId() != null) {
+                var team = teamRepository.findById(document.getTeamId()).orElse(null);
+                assert team != null;
+                var leaderId = team.getLeaderId();
+                var membership = membershipRepository.findByUserIdAndTeamId(auth.userId(), team.getId());
+                havePermission = (auth.userId() == document.getCreatorId()
+                                || auth.userId() == leaderId
+                                || (membership != null && !document.getTeamCommentAccess().equals(Access.None)));
+            } else {
+                havePermission = (auth.userId() == document.getCreatorId()
+                                || !document.getPublicCommentAccess().equals(Access.None));
+            }
+        }
+
+        if (!havePermission){
+            throw new ForbidException();
+        }
+
+
         List<QComment> comments = new ArrayList<>();
 
         var query = entityManager.createQuery(
@@ -113,6 +160,7 @@ public class CommentsController {
                 .setParameter("userId", userId);
 
         var results = query.getResultList();
+
         for (var result : results) {
             var comment = (Comment) result;
             var qUser = Quser.convert(userRepository.findById(comment.getUserId()).orElse(null), mapper);
