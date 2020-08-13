@@ -3,6 +3,8 @@ package fullforum.controllers;
 import fullforum.data.models.Access;
 import fullforum.data.models.Document;
 import fullforum.data.repos.DocumentRepository;
+import fullforum.data.repos.MembershipRepository;
+import fullforum.data.repos.UserRepository;
 import fullforum.dto.in.CreateDocumentModel;
 import fullforum.dto.in.PatchDocumentModel;
 import fullforum.dto.out.IdDto;
@@ -32,9 +34,6 @@ public class DocumentController {
     Snowflake snowflake;
 
     @Autowired
-    DocumentRepository documentRepository;
-
-    @Autowired
     IAuth auth;
 
     @Autowired
@@ -42,6 +41,15 @@ public class DocumentController {
 
     @Autowired
     EntityManager entityManager;
+
+    @Autowired
+    DocumentRepository documentRepository;
+
+    @Autowired
+    UserRepository userRepository;
+
+    @Autowired
+    MembershipRepository membershipRepository;
 
 
     @PostMapping
@@ -112,11 +120,33 @@ public class DocumentController {
 
     @GetMapping("{id}")
     public QDocument getDocumentById(@PathVariable Long id) {
+        if (!auth.isLoggedIn()) {
+            throw new UnauthorizedException();
+        }
         var document = documentRepository.findById(id).orElse(null);
+
         if (document == null) {
             return null;
         }
-        return QDocument.convert(document, modelMapper);
+        if (document.getCreatorId() == auth.userId()) {
+            return QDocument.convert(document, modelMapper);
+        }
+
+        if (document.getTeamId() != null) {
+            var membership = membershipRepository.findByUserIdAndTeamId(auth.userId(), document.getTeamId());
+            if (membership == null) {
+                throw new ForbidException();
+            }
+            if (document.getTeamDocumentAccess().equals(Access.None)) {
+                throw new ForbidException();
+            }
+            return QDocument.convert(document, modelMapper);
+        } else {
+            if (document.getPublicDocumentAccess().equals(Access.None)) {
+                throw new ForbidException();
+            }
+            return QDocument.convert(document, modelMapper);
+        }
     }
 
 
@@ -127,13 +157,13 @@ public class DocumentController {
             @RequestParam(required = false) Boolean myfavorite,
             @RequestParam(required = false) Boolean isAbandoned
     ) {
+        if (!auth.isLoggedIn()) {
+            throw new UnauthorizedException();
+        }
         List results;
         List<QDocument> documents = new ArrayList<>();
 
         if (myfavorite != null && myfavorite) {
-            if (!auth.isLoggedIn()) {
-                throw new UnauthorizedException();
-            }
             var query = entityManager.createQuery(
                     "select d from Document d join Favorite f" +
                             " on d.id = f.documentId" +
@@ -148,9 +178,6 @@ public class DocumentController {
             return documents;
 
         } else if (isAbandoned != null && isAbandoned) {
-            if (!auth.isLoggedIn()) {
-                throw new UnauthorizedException();
-            }
             var query = entityManager.createQuery(
                     "select d from Document d" +
                             " where d.creatorId = :userId " +
@@ -158,6 +185,12 @@ public class DocumentController {
                     .setParameter("userId", auth.userId());
             results = query.getResultList();
         } else {
+            if (teamId != null) {
+                var membership = membershipRepository.findByUserIdAndTeamId(auth.userId(), teamId);
+                if (membership == null) {
+                    throw new ForbidException();
+                }
+            }
             var query = entityManager.createQuery(
                     "select d from Document d" +
                             " where (:creatorId is null or d.creatorId = :creatorId)" +
@@ -169,7 +202,15 @@ public class DocumentController {
         }
         for (var result : results) {
             var document = (Document) result;
-            documents.add(QDocument.convert(document, modelMapper));
+            if (auth.userId() != document.getCreatorId()) {//非文档创建者
+                if (teamId != null && !document.getTeamDocumentAccess().equals(Access.None)) {//团队文档
+                    documents.add(QDocument.convert(document, modelMapper));
+                } else if (teamId == null && !document.getPublicDocumentAccess().equals(Access.None)) {//非团队文档
+                    documents.add(QDocument.convert(document, modelMapper));
+                }
+            } else {
+                documents.add(QDocument.convert(document, modelMapper));
+            }
         }
         return documents;
     }
