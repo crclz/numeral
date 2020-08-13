@@ -18,7 +18,6 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.web.servlet.MockMvc;
 
-import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -94,6 +93,18 @@ public class DocumentControllerTest extends BaseTest {
         var patch = new PatchDocumentModel();
         patch.description = "eeeee";
         assertThrows(UnauthorizedException.class, () -> documentController.patchDocument(patch, 1));
+    }
+    @Test
+    void patchDocument_throw_ForbidException_when_user_is_not_creator_and_not_in_team_of_document() {
+        auth.setRealUserId(2);
+        var document = new Document(1, 1, "hahah",  "model1.description", "model1.data");
+        document.setTeamId(99L);
+        documentRepository.save(document);
+
+        var patch = new PatchDocumentModel();
+        patch.description = "eeeee";
+
+        assertThrows(ForbidException.class, () -> documentController.patchDocument(patch, 1));
     }
     @Test
     void patchDocument_throw_ForbidException_when_user_is_not_creator_and_PublicDocumentAccess_is_not_ReadWrite() {

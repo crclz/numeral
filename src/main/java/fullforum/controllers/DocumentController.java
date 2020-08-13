@@ -72,8 +72,19 @@ public class DocumentController {
         if (document == null) {
             throw new NotFoundException();
         }
+        //判断权限
+        boolean havePermission = false;
+        if (auth.userId() == document.getCreatorId()) {
+            havePermission = true;
+        } else if (document.getTeamId() != null){ //团队文档
+            var membership = membershipRepository.findByUserIdAndTeamId(auth.userId(), document.getTeamId());
+            havePermission = (membership != null && document.getTeamDocumentAccess().equals(Access.ReadWrite));
+        } else { //非团队文档
+            havePermission = document.getPublicDocumentAccess().equals(Access.ReadWrite);
+        }
 
-        if (document.getPublicDocumentAccess().equals(Access.ReadWrite) || auth.userId() == document.getCreatorId()) {
+
+        if (havePermission) {
             document.setData(model.data == null ? document.getData() : model.data);
             document.setTitle(model.title == null ? document.getTitle() : model.title);
             document.setDescription(model.description == null ? document.getDescription() : model.description);
