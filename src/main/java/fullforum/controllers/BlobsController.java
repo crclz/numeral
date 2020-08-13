@@ -59,7 +59,7 @@ public class BlobsController {
     }
 
     @PostMapping("batch-upload")
-    public BatchUploadResult batchUpload(@RequestParam MultipartFile[] files) throws IOException {
+    public BatchUploadResult batchUpload(@RequestParam("file") MultipartFile[] files) throws IOException {
         var blobs = new ArrayList<Blob2>();
         for (var file : files) {
             var blob = new Blob2(snowflake.nextId(), file.getBytes());
