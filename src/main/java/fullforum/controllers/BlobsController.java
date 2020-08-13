@@ -2,6 +2,7 @@ package fullforum.controllers;
 
 import fullforum.data.models.Blob2;
 import fullforum.data.repos.BlobRepository;
+import fullforum.dto.out.BatchUploadResult;
 import fullforum.errhand.BadRequestException;
 import fullforum.errhand.ErrorCode;
 import fullforum.services.IAuth;
@@ -15,6 +16,9 @@ import org.springframework.web.multipart.MultipartFile;
 
 import javax.transaction.Transactional;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.stream.Collectors;
 
 @Transactional
 @RestController
@@ -52,6 +56,24 @@ public class BlobsController {
         return ResponseEntity.ok()
                 .contentType(MediaType.IMAGE_JPEG)
                 .body(blob.getData());
+    }
+
+    @PostMapping("batch-upload")
+    public BatchUploadResult batchUpload(@RequestParam("file") MultipartFile[] files) throws IOException {
+        var blobs = new ArrayList<Blob2>();
+        for (var file : files) {
+            var blob = new Blob2(snowflake.nextId(), file.getBytes());
+            blobRepository.save(blob);
+            blobs.add(blob);
+        }
+
+        blobRepository.saveAll(blobs);
+
+        var blobUrlList = blobs.stream().map(p -> "/api/blobs/" + p.getId().toString()).collect(Collectors.toList());
+
+        var result = new BatchUploadResult();
+        result.setData(blobUrlList);
+        return result;
     }
 
 }
