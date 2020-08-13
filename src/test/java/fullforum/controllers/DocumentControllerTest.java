@@ -4,8 +4,10 @@ import fullforum.BaseTest;
 import fullforum.data.models.Access;
 import fullforum.data.models.Document;
 import fullforum.data.models.Membership;
+import fullforum.data.models.Team;
 import fullforum.data.repos.DocumentRepository;
 import fullforum.data.repos.MembershipRepository;
+import fullforum.data.repos.TeamRepository;
 import fullforum.dependency.FakeAuth;
 import fullforum.dto.in.CreateDocumentModel;
 import fullforum.dto.in.PatchDocumentModel;
@@ -31,6 +33,9 @@ public class DocumentControllerTest extends BaseTest {
 
     @Autowired
     DocumentRepository documentRepository;
+
+    @Autowired
+    TeamRepository teamRepository;
 
     @Autowired
     MembershipRepository membershipRepository;
@@ -303,6 +308,47 @@ public class DocumentControllerTest extends BaseTest {
         }
     }
 
+
+    //test getCurrentUserPermission
+    @Test
+    void getCurrentUserPermission_throw_UnauthorizedException_when_user_is_not_login() {
+        assertThrows(UnauthorizedException.class, () -> documentController.getCurrentUserPermission(1L));
+    }
+
+    @Test
+    void getCurrentUserPermission_return_user_permission_when_all_ok() {
+        auth.setRealUserId(1);
+        var team = new Team(50L, 2L, "dasda", "sdad");
+        teamRepository.save(team);
+
+        var document = new Document(100L, 10L, "Dasdasd", "sadss", "Dsadasd");
+        document.setTeamId(50L);
+        document.setTeamCanShare(false);
+        document.setTeamDocumentAccess(Access.Read);
+        documentRepository.save(document);
+
+        var membership1 = new Membership(222L, 50L, 1L);
+        var membership2 = new Membership(223L, 50L, 2L);
+
+        membershipRepository.save(membership1);
+        membershipRepository.save(membership2);
+
+
+        var permission1 = documentController.getCurrentUserPermission(document.getId());
+        assertEquals(permission1.canShare, document.getTeamCanShare());
+        assertEquals(permission1.commentAccess, document.getTeamCommentAccess());
+        assertEquals(permission1.documentAccess, document.getTeamDocumentAccess());
+
+        auth.setRealUserId(2);
+
+        var permission2 = documentController.getCurrentUserPermission(document.getId());
+        assertTrue(permission2.canShare);
+        assertEquals(permission2.commentAccess, Access.ReadWrite);
+        assertEquals(permission2.documentAccess, Access.ReadWrite);
+
+
+
+    }
 }
 
 

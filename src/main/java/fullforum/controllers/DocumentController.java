@@ -3,11 +3,13 @@ package fullforum.controllers;
 import fullforum.data.models.Access;
 import fullforum.data.models.Comment;
 import fullforum.data.models.Document;
+import fullforum.data.models.User;
 import fullforum.data.repos.*;
 import fullforum.dto.in.CreateDocumentModel;
 import fullforum.dto.in.PatchDocumentModel;
 import fullforum.dto.out.IdDto;
 import fullforum.dto.out.QDocument;
+import fullforum.dto.out.UserPermission;
 import fullforum.errhand.ForbidException;
 import fullforum.errhand.NotFoundException;
 import fullforum.errhand.UnauthorizedException;
@@ -242,6 +244,42 @@ public class DocumentController {
             }
         }
         return documents;
+    }
+
+    @GetMapping("/permission/{id}")
+    public UserPermission getCurrentUserPermission(@PathVariable Long id) {
+        if (!auth.isLoggedIn()) {
+            throw new UnauthorizedException();
+        }
+        var document = documentRepository.findById(id).orElse(null);
+        if (document == null) {
+            throw new NotFoundException();
+        }
+
+        if (auth.userId() == document.getCreatorId()) {
+            return new UserPermission(auth.userId(), Access.ReadWrite, Access.ReadWrite, true);
+        }
+
+        if (document.getTeamId() != null) {
+            var membership = membershipRepository.findByUserIdAndTeamId(auth.userId(), document.getTeamId());
+            var team = teamRepository.findById(document.getTeamId()).orElse(null);
+            assert team != null;
+
+            if (membership == null) {
+                return new UserPermission(auth.userId(), Access.None, Access.None, false);
+            }
+
+            if (team.getLeaderId() == auth.userId()) {
+                return new UserPermission(auth.userId(), Access.ReadWrite, Access.ReadWrite,true);
+            } else {
+                return new UserPermission(auth.userId(), document.getTeamDocumentAccess(),
+                        document.getTeamCommentAccess(), document.getTeamCanShare());
+            }
+        } else {
+            return new UserPermission(auth.userId(), document.getPublicDocumentAccess(),
+                    document.getPublicCommentAccess(), document.getPublicCanShare());
+        }
+
     }
 
 
