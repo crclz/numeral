@@ -1,10 +1,9 @@
 package fullforum.controllers;
 
 import fullforum.data.models.Access;
+import fullforum.data.models.Comment;
 import fullforum.data.models.Document;
-import fullforum.data.repos.DocumentRepository;
-import fullforum.data.repos.MembershipRepository;
-import fullforum.data.repos.UserRepository;
+import fullforum.data.repos.*;
 import fullforum.dto.in.CreateDocumentModel;
 import fullforum.dto.in.PatchDocumentModel;
 import fullforum.dto.out.IdDto;
@@ -43,6 +42,12 @@ public class DocumentController {
     EntityManager entityManager;
 
     @Autowired
+    TeamRepository teamRepository;
+
+    @Autowired
+    CommentRepository commentRepository;
+
+    @Autowired
     DocumentRepository documentRepository;
 
     @Autowired
@@ -72,8 +77,8 @@ public class DocumentController {
         if (document == null) {
             throw new NotFoundException();
         }
-        //判断权限
-        boolean havePermission = false;
+        //检查权限
+        boolean havePermission;
         if (auth.userId() == document.getCreatorId()) {
             havePermission = true;
         } else if (document.getTeamId() != null){ //团队文档
@@ -92,8 +97,21 @@ public class DocumentController {
             throw new ForbidException();
         }
 
+        if (document.getTeamId() != null) {
+            var team = teamRepository.findById(document.getTeamId()).orElse(null);
+            assert team != null;//删除team的时候会清空doc的teamId
+            if (auth.userId() == document.getCreatorId() || auth.userId() == team.getLeaderId()) {
+                document.setTeamId(model.teamId == null ? document.getTeamId() : model.teamId);
+                document.setTeamDocumentAccess(model.teamDocumentAccess == null ? document.getTeamCommentAccess()
+                        : model.teamDocumentAccess);
+                document.setTeamCommentAccess(model.teamCommentAccess == null ? document.getTeamCommentAccess()
+                        : model.teamCommentAccess);
+                document.setTeamCanShare(model.teamCanShare == null ? document.getTeamCanShare()
+                        : model.teamCanShare);
+            }
+        }
+
         if (auth.userId() == document.getCreatorId()) {
-            document.setTeamId(model.teamId == null ? document.getTeamId() : model.teamId);
             document.setIsAbandoned(model.isAbandoned == null ? document.getIsAbandoned() : model.isAbandoned);
             document.setPublicDocumentAccess(model.publicDocumentAccess == null ? document.getPublicCommentAccess()
                     : model.publicDocumentAccess);
@@ -101,12 +119,6 @@ public class DocumentController {
                     : model.publicCommentAccess);
             document.setPublicCanShare(model.publicCanShare == null ? document.getPublicCanShare()
                     : model.publicCanShare);
-            document.setTeamDocumentAccess(model.teamDocumentAccess == null ? document.getTeamCommentAccess()
-                    : model.teamDocumentAccess);
-            document.setTeamCommentAccess(model.teamCommentAccess == null ? document.getTeamCommentAccess()
-                    : model.teamCommentAccess);
-            document.setTeamCanShare(model.teamCanShare == null ? document.getTeamCanShare()
-                    : model.teamCanShare);
         }
         document.updatedAtNow();
         document.setModifyCountAndModifier(auth.userId());
@@ -126,6 +138,12 @@ public class DocumentController {
         if (document.getCreatorId() != auth.userId()) {
             throw new ForbidException();
         }
+
+        var comments = commentRepository.findAllByDocumentId(id);
+        for (Comment comment : comments) {
+            commentRepository.deleteById(comment.getId());
+        }
+
         documentRepository.deleteById(id);
     }
 

@@ -1,10 +1,11 @@
 package fullforum.controllers;
 
 import fullforum.BaseTest;
-import fullforum.data.models.Access;
-import fullforum.data.models.Document;
+import fullforum.data.models.*;
 import fullforum.data.repos.CommentRepository;
 import fullforum.data.repos.DocumentRepository;
+import fullforum.data.repos.MembershipRepository;
+import fullforum.data.repos.TeamRepository;
 import fullforum.dependency.FakeAuth;
 import fullforum.dto.in.CreateCommentModel;
 import fullforum.errhand.ForbidException;
@@ -27,6 +28,12 @@ public class CommentControllerTest extends BaseTest{
     DocumentRepository documentRepository;
 
     @Autowired
+    TeamRepository teamRepository;
+
+    @Autowired
+    MembershipRepository membershipRepository;
+
+    @Autowired
     FakeAuth auth;
 
     //test createComment
@@ -43,6 +50,18 @@ public class CommentControllerTest extends BaseTest{
 
         var model = new CreateCommentModel(1L, "hahaha");
         assertThrows(NotFoundException.class, () -> commentsController.createComment(model));
+    }
+
+    @Test
+    void creatComment_throw_ForbidException_when_user_not_in_team_of_document_and_is_not_creator() {
+        auth.setRealUserId(3333333);
+        var document = new Document(2, 1, "hahah",  "model1.description", "model1.data");
+        document.setTeamId(45L);
+        documentRepository.save(document);
+        var model = new CreateCommentModel(2L, "hahaha");
+
+        assertThrows(ForbidException.class, () -> commentsController.createComment(model));
+
     }
 
     @Test
@@ -123,6 +142,7 @@ public class CommentControllerTest extends BaseTest{
     //test getCommentById
     @Test
     void getCommentById_return_null_when_comment_not_exist() {
+        auth.setRealUserId(1);
         var comment = commentsController.getCommentById(1L);
         assertThat(comment).isNull();
     }
@@ -145,10 +165,14 @@ public class CommentControllerTest extends BaseTest{
         assertEquals(qComment.getUserId(), auth.userId());
 
     }
+    //test getComments
 
     @Test
-    void getComments_return_list_of_comment_infos_when_comment_exist(){
+    void getComments_throw_ForbidException_when_user_have_no_permission() {
         auth.setRealUserId(1);
+        var team = new Team(999L, 21312L, "Dsadas", "dadsda");
+        teamRepository.save(team);
+
         var document1 = new Document(2, 4, "hahah",  "model1.description", "model1.data");
         var document2 = new Document(3, 5, "hahah",  "model1.description", "model1.data");
         var document3 = new Document(4, 6, "hahah",  "model1.description", "model1.data");
@@ -159,33 +183,98 @@ public class CommentControllerTest extends BaseTest{
         document3.setPublicCommentAccess(Access.ReadWrite);
         document4.setPublicCommentAccess(Access.ReadWrite);
 
+        document1.setPublicCommentAccess(Access.None);
+        document2.setTeamId(999L);
+        document2.setTeamCommentAccess(Access.None);
+
         documentRepository.save(document1);
         documentRepository.save(document2);
         documentRepository.save(document3);
         documentRepository.save(document4);
 
-        var model1 = new CreateCommentModel(2L, "hahaha");
-        var model2 = new CreateCommentModel(4L, "hahaha");
-        var model3 = new CreateCommentModel(3L, "hahaha");
-        var cid1 = commentsController.createComment(model1);
-        var cid2 = commentsController.createComment(model2);
-        var cid3 = commentsController.createComment(model3);
-        auth.setRealUserId(2L);
-        var model4 = new CreateCommentModel(2L, "hahaha");
-        var model5 = new CreateCommentModel(4L, "hahaha");
-        var cid4 = commentsController.createComment(model4);
-        var cid5 = commentsController.createComment(model5);
+        var comment1 = new Comment(100L, 2L, 1L, "dasdadad");
+        var comment2 = new Comment(101L, 4L, 1L, "dasdadad");
+        var comment3 = new Comment(102L, 3L, 1L, "dasdadad");
+        var comment4 = new Comment(103L, 2L, 2L, "dasdadad");
+        var comment5 = new Comment(104L, 4L, 2L, "dasdadad");
 
-        var docId = 2L;
+        commentRepository.save(comment1);
+        commentRepository.save(comment2);
+        commentRepository.save(comment3);
+        commentRepository.save(comment4);
+        commentRepository.save(comment5);
+
+
+        var docId1 = 2L;
         var userId = 1L;
 
-        var comments = commentsController.getComments(docId, userId);
+        assertThrows(ForbidException.class, () -> commentsController.getComments(docId1, userId));
 
-        assertNotNull(comments);
+        var docId2 = document2.getId();
+        assertThrows(ForbidException.class, () -> commentsController.getComments(docId2, userId));
 
-        for (var comment : comments) {
+    }
+
+    @Test
+    void getComments_return_list_of_comment_infos_when_all_ok(){
+        auth.setRealUserId(1);
+        var team = new Team(999L, 21312L, "Dsadas", "dadsda");
+        teamRepository.save(team);
+
+        var membership = new Membership(1231L, 999L, 1L);
+        membershipRepository.save(membership);
+
+
+        var document1 = new Document(2, 4, "hahah",  "model1.description", "model1.data");
+        var document2 = new Document(3, 5, "hahah",  "model1.description", "model1.data");
+        var document3 = new Document(4, 6, "hahah",  "model1.description", "model1.data");
+        var document4 = new Document(5, 7, "hahah",  "model1.description", "model1.data");
+
+        document1.setPublicCommentAccess(Access.ReadWrite);
+        document2.setPublicCommentAccess(Access.ReadWrite);
+        document3.setPublicCommentAccess(Access.ReadWrite);
+        document4.setPublicCommentAccess(Access.ReadWrite);
+
+        document1.setPublicCommentAccess(Access.Read);
+        document2.setTeamId(999L);
+
+        documentRepository.save(document1);
+        documentRepository.save(document2);
+        documentRepository.save(document3);
+        documentRepository.save(document4);
+
+        var comment1 = new Comment(100L, 2L, 1L, "dasdadad");
+        var comment2 = new Comment(101L, 4L, 1L, "dasdadad");
+        var comment3 = new Comment(102L, 3L, 1L, "dasdadad");
+        var comment4 = new Comment(103L, 2L, 2L, "dasdadad");
+        var comment5 = new Comment(104L, 4L, 2L, "dasdadad");
+
+        commentRepository.save(comment1);
+        commentRepository.save(comment2);
+        commentRepository.save(comment3);
+        commentRepository.save(comment4);
+        commentRepository.save(comment5);
+
+
+        var docId1 = 2L;
+        var userId = 1L;
+
+        var comments1 = commentsController.getComments(docId1, userId);
+
+        assertNotNull(comments1);
+
+        for (var comment : comments1) {
             assertEquals(comment.getUserId(), userId);
-            assertEquals(comment.getDocumentId(), docId);
+            assertEquals(comment.getDocumentId(), docId1);
+        }
+        var docId2 = document2.getId();
+        var comments2 = commentsController.getComments(docId2, null);
+
+        assertNotNull(comments2);
+
+        for (var comment : comments2) {
+            assertEquals(comment.getUserId(), userId);
+            assertEquals(comment.getDocumentId(), docId2);
         }
     }
 
