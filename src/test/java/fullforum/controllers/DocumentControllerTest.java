@@ -1,13 +1,11 @@
 package fullforum.controllers;
 
 import fullforum.BaseTest;
-import fullforum.data.models.Access;
-import fullforum.data.models.Document;
-import fullforum.data.models.Membership;
-import fullforum.data.models.Team;
+import fullforum.data.models.*;
 import fullforum.data.repos.DocumentRepository;
 import fullforum.data.repos.MembershipRepository;
 import fullforum.data.repos.TeamRepository;
+import fullforum.data.repos.ViewRecordRepository;
 import fullforum.dependency.FakeAuth;
 import fullforum.dto.in.CreateDocumentModel;
 import fullforum.dto.in.PatchDocumentModel;
@@ -39,6 +37,9 @@ public class DocumentControllerTest extends BaseTest {
 
     @Autowired
     MembershipRepository membershipRepository;
+
+    @Autowired
+    ViewRecordRepository viewRecordRepository;
 
     @Autowired
     Snowflake snowflake;
@@ -254,7 +255,7 @@ public class DocumentControllerTest extends BaseTest {
         var teamId = 4L;
         auth.setRealUserId(9);
 
-        assertThrows(ForbidException.class, () -> documentController.getDocuments(creatorId, teamId, false, false));
+        assertThrows(ForbidException.class, () -> documentController.getDocuments(creatorId, teamId, false, false, false));
     }
 
     @Test
@@ -284,7 +285,7 @@ public class DocumentControllerTest extends BaseTest {
         var teamId = 4L;
 
         auth.setRealUserId(66);
-        var documentList1 = documentController.getDocuments(creatorId, teamId, false, false);
+        var documentList1 = documentController.getDocuments(creatorId, teamId, false, false, false);
         assertThat(documentList1.size()).isNotZero();
         for (QDocument qDocument:documentList1) {
             assertThat(qDocument.getCreatorId()).isEqualTo(creatorId);
@@ -292,7 +293,7 @@ public class DocumentControllerTest extends BaseTest {
         }
 
         auth.setRealUserId(2);
-        var documentList2 = documentController.getDocuments(creatorId, null, false, false);
+        var documentList2 = documentController.getDocuments(creatorId, null, false, false, false);
         assertThat(documentList2.size()).isNotZero();
         for (QDocument qDocument:documentList2) {
             assertThat(qDocument.getCreatorId()).isEqualTo(creatorId);
@@ -300,12 +301,28 @@ public class DocumentControllerTest extends BaseTest {
         }
 
         auth.setRealUserId(3);
-        var documentList3 = documentController.getDocuments(creatorId, null, false, true);
+        var documentList3 = documentController.getDocuments(creatorId, null, false, true, false);
         assertThat(documentList3.size()).isNotZero();
         for (QDocument qDocument:documentList3) {
             assertThat(qDocument.getCreatorId()).isEqualTo(auth.userId());
             assertThat(qDocument.isAbandoned()).isEqualTo(true);
         }
+
+        //测试最近浏览
+        var viewRecord1 = new ViewRecord(100L, 3, 3);
+        var viewRecord2 = new ViewRecord(101L, 3, 4);
+        var viewRecord3 = new ViewRecord(102L, 3, 5);
+
+        viewRecordRepository.save(viewRecord1);
+        viewRecordRepository.save(viewRecord2);
+        viewRecordRepository.save(viewRecord3);
+
+        var documentList4 = documentController.getDocuments(null, null, false, false, true);
+        assertThat(documentList4.size()).isEqualTo(2);//doc5 isAbandoned == true
+        for (QDocument qDocument : documentList4) {
+            assertThat(qDocument.isAbandoned()).isFalse();
+        }
+
     }
 
 

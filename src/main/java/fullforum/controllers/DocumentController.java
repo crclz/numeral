@@ -3,6 +3,7 @@ package fullforum.controllers;
 import fullforum.data.models.Access;
 import fullforum.data.models.Comment;
 import fullforum.data.models.Document;
+import fullforum.data.models.ViewRecord;
 import fullforum.data.repos.*;
 import fullforum.dto.in.CreateDocumentModel;
 import fullforum.dto.in.PatchDocumentModel;
@@ -56,6 +57,9 @@ public class DocumentController {
 
     @Autowired
     MembershipRepository membershipRepository;
+
+    @Autowired
+    ViewRecordRepository viewRecordRepository;
 
 
     @PostMapping
@@ -158,7 +162,16 @@ public class DocumentController {
         if (document == null) {
             return null;
         }
+
+        var viewRecord = viewRecordRepository.findByDocumentIdAndUserId(document.getId(), auth.userId());
+        if (viewRecord == null) {
+            viewRecord = new ViewRecord(snowflake.nextId(), auth.userId(), document.getId());
+        } else {
+            viewRecord.updatedAtNow();
+        }
+
         if (document.getCreatorId() == auth.userId()) {
+            viewRecordRepository.save(viewRecord);
             return QDocument.convert(document, modelMapper);
         }
 
@@ -170,11 +183,13 @@ public class DocumentController {
             if (document.getTeamDocumentAccess().equals(Access.None)) {
                 throw new ForbidException();
             }
+            viewRecordRepository.save(viewRecord);
             return QDocument.convert(document, modelMapper);
         } else {
             if (document.getPublicDocumentAccess().equals(Access.None)) {
                 throw new ForbidException();
             }
+            viewRecordRepository.save(viewRecord);
             return QDocument.convert(document, modelMapper);
         }
     }
@@ -185,7 +200,8 @@ public class DocumentController {
             @RequestParam(required = false) Long creatorId,
             @RequestParam(required = false) Long teamId,
             @RequestParam(required = false) Boolean myfavorite,
-            @RequestParam(required = false) Boolean isAbandoned
+            @RequestParam(required = false) Boolean isAbandoned,
+            @RequestParam(required = false) Boolean recent
     ) {
         if (!auth.isLoggedIn()) {
             throw new UnauthorizedException();
@@ -193,7 +209,7 @@ public class DocumentController {
         List results;
         List<QDocument> documents = new ArrayList<>();
 
-        if (myfavorite != null && myfavorite) {
+        if (myfavorite != null && myfavorite) { //返回当前用户收藏的文档
             var query = entityManager.createQuery(
                     "select d from Document d join Favorite f" +
                             " on d.id = f.documentId" +
@@ -201,20 +217,31 @@ public class DocumentController {
                             " and d.isAbandoned = false")
                     .setParameter("userId", auth.userId());
             results = query.getResultList();
-            for (var result : results) {
-                var document = (Document) result;
-                documents.add(QDocument.convert(document, modelMapper));
-            }
-            return documents;
-
-        } else if (isAbandoned != null && isAbandoned) {
+        } else if (isAbandoned != null && isAbandoned) { //返回当前用户回收站内文档
             var query = entityManager.createQuery(
                     "select d from Document d" +
                             " where d.creatorId = :userId " +
                             " and d.isAbandoned = true")
                     .setParameter("userId", auth.userId());
             results = query.getResultList();
-        } else {
+        } else if (recent != null && recent) { //返回当前用户最近浏览的文档
+            var query = entityManager.createQuery(
+                    "select d from Document d join ViewRecord v" +
+                            " on d.id = v.documentId" +
+                            " where (v.userId = :userId)" +
+                            " and d.isAbandoned = false" +
+                            " order by v.updatedAt desc " )
+                    .setParameter("userId", auth.userId());
+            results = query.getResultList();
+            for (var result:results) {
+                var document = (Document) result;
+                documents.add(QDocument.convert(document, modelMapper));
+                if (documents.size() >= 15) {
+                    break;
+                }
+            }
+            return documents;
+        } else { //根据
             if (teamId != null) {
                 var membership = membershipRepository.findByUserIdAndTeamId(auth.userId(), teamId);
                 if (membership == null) {
