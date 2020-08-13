@@ -105,7 +105,7 @@ public class DocumentController {
         if (document.getTeamId() != null) {
             var team = teamRepository.findById(document.getTeamId()).orElse(null);
             assert team != null;//删除team的时候会清空doc的teamId
-            if (auth.userId() == document.getCreatorId() || auth.userId() == team.getLeaderId()) {
+            if (auth.userId() == team.getLeaderId()) {
                 document.setTeamId(model.teamId == null ? document.getTeamId() : model.teamId);
                 document.setTeamDocumentAccess(model.teamDocumentAccess == null ? document.getTeamCommentAccess()
                         : model.teamDocumentAccess);
@@ -117,6 +117,7 @@ public class DocumentController {
         }
 
         if (auth.userId() == document.getCreatorId()) {
+            document.setTeamId(model.teamId == null ? document.getTeamId() : model.teamId);
             document.setIsAbandoned(model.isAbandoned == null ? document.getIsAbandoned() : model.isAbandoned);
             document.setPublicDocumentAccess(model.publicDocumentAccess == null ? document.getPublicCommentAccess()
                     : model.publicDocumentAccess);
