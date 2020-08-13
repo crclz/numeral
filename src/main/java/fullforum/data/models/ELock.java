@@ -17,6 +17,9 @@ public class ELock extends RootEntity {
     @Getter
     private long lastAcquiredAt;
 
+    @Getter
+    private final int LOCK_TIME_OUT = 3000;
+
     protected ELock() {
     }
 
@@ -24,6 +27,14 @@ public class ELock extends RootEntity {
         super(id);
         this.documentId = documentId;
         this.lastAcquiredAt = 0;
+    }
+
+    public Long getRealOwnerId() {
+        var now = System.currentTimeMillis();
+        if (now - lastAcquiredAt > LOCK_TIME_OUT) {
+            return null;
+        }
+        return lastOwnerId;
     }
 
     public boolean tryAcquire(long userId) {
@@ -34,7 +45,7 @@ public class ELock extends RootEntity {
             return true;
         }
 
-        if (now - lastAcquiredAt > 5000) {
+        if (now - lastAcquiredAt > LOCK_TIME_OUT) {
             lastOwnerId = userId;
             lastAcquiredAt = now;
             return true;
