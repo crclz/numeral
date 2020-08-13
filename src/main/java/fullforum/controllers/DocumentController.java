@@ -95,6 +95,7 @@ public class DocumentController {
 
 
         if (havePermission) {
+            document.setTeamId(model.teamId == null ? document.getTeamId() : model.teamId);
             document.setData(model.data == null ? document.getData() : model.data);
             document.setTitle(model.title == null ? document.getTitle() : model.title);
             document.setDescription(model.description == null ? document.getDescription() : model.description);
@@ -117,6 +118,7 @@ public class DocumentController {
         }
 
         if (auth.userId() == document.getCreatorId()) {
+            document.setTeamId(model.teamId == null ? document.getTeamId() : model.teamId);
             document.setIsAbandoned(model.isAbandoned == null ? document.getIsAbandoned() : model.isAbandoned);
             document.setPublicDocumentAccess(model.publicDocumentAccess == null ? document.getPublicCommentAccess()
                     : model.publicDocumentAccess);
