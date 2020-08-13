@@ -14,10 +14,7 @@ import fullforum.services.Snowflake;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import javax.transaction.Transactional;
 
@@ -76,6 +73,34 @@ public class ELockController {
             var result = new AcquireLockResult(false, Quser.convert(owner, modelMapper));
             return result;
         }
+    }
+
+    @GetMapping("get-owner")
+    public Quser getOwner(@RequestParam Long documentId) {
+        if (!auth.isLoggedIn()) {
+            throw new UnauthorizedException();
+        }
+
+        var document = documentRepository.findById(documentId).orElse(null);
+
+        if (document == null) {
+            throw new BadRequestException(ErrorCode.EntityNotExist, "文档不存在");
+        }
+
+        var lock = elockRepository.findELockByDocumentId(documentId);
+        if (lock == null) {
+            return null;
+        }
+
+        var ownerId = lock.getRealOwnerId();
+
+        if (ownerId == null) {
+            return null;
+        }
+
+        var owner = userRepository.findById(ownerId).orElseThrow();
+
+        return Quser.convert(owner, modelMapper);
     }
 
 }

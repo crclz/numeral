@@ -1,4 +1,4 @@
-set -
+set -e
 
 echo 'make sure the code is the newest'
 sleep 2
