@@ -9,5 +9,5 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class AcquireLockResult {
     private boolean success;
-    private Quser owner;
+    private Quser ownerRef;
 }
