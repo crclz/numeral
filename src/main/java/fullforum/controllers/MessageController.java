@@ -7,10 +7,13 @@ import fullforum.data.repos.UserRepository;
 import fullforum.dto.in.CreateMessageModel;
 import fullforum.dto.out.IdDto;
 import fullforum.dto.out.QMessage;
+import fullforum.errhand.UnauthorizedException;
 import fullforum.services.IAuth;
 import fullforum.services.Snowflake;
 import org.hibernate.cfg.NotYetImplementedException;
+import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import javax.transaction.Transactional;
@@ -19,12 +22,16 @@ import java.util.List;
 @Transactional
 @RestController
 @RequestMapping("/api/message")
+@Validated
 public class MessageController {
     @Autowired
     IAuth auth;
 
     @Autowired
     Snowflake snowflake;
+
+    @Autowired
+    ModelMapper mapper;
 
     @Autowired
     TeamRepository teamRepository;
@@ -41,6 +48,9 @@ public class MessageController {
 
     @PostMapping
     public IdDto createMessage(@RequestBody CreateMessageModel model){
+        if (!auth.isLoggedIn()) {
+            throw new UnauthorizedException();
+        }
         throw new NotYetImplementedException();
 
     }

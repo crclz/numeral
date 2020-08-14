@@ -6,6 +6,7 @@ import fullforum.data.repos.MessageRepository;
 import fullforum.data.repos.TeamRepository;
 import fullforum.data.repos.UserRepository;
 import fullforum.dependency.FakeAuth;
+import fullforum.dto.in.CreateMessageModel;
 import fullforum.errhand.UnauthorizedException;
 import fullforum.services.IAuth;
 import fullforum.services.Snowflake;
@@ -43,7 +44,8 @@ public class MessageControllerTest extends BaseTest {
 
     @Test
     void creatMessage_throw_UnauthorizedException_when_user_is_not_log_in() {
-//        assertThrows(UnauthorizedException.class, () -> messageController.createMessage());
+        var model = new CreateMessageModel();
+        assertThrows(UnauthorizedException.class, () -> messageController.createMessage(model));
     }
 
 
