@@ -2,11 +2,9 @@ package fullforum.controllers;
 
 import fullforum.data.models.Document;
 import fullforum.data.models.Membership;
+import fullforum.data.models.Message;
 import fullforum.data.models.Team;
-import fullforum.data.repos.DocumentRepository;
-import fullforum.data.repos.MembershipRepository;
-import fullforum.data.repos.TeamRepository;
-import fullforum.data.repos.UserRepository;
+import fullforum.data.repos.*;
 import fullforum.dto.in.CreateTeamModel;
 import fullforum.dto.in.PatchTeamModel;
 import fullforum.dto.out.IdDto;
@@ -51,6 +49,9 @@ public class TeamsController {
     UserRepository userRepository;
 
     @Autowired
+    MessageRepository messageRepository;
+
+    @Autowired
     DocumentRepository documentRepository;
 
     @Autowired
@@ -67,6 +68,11 @@ public class TeamsController {
 
         var membership = new Membership(snowflake.nextId(), team.getId(), auth.userId());
         membershipRepository.save(membership);
+
+        var message = new Message(snowflake.nextId(), -1L, auth.userId());
+        message.setTitle("创建团队通知");
+        message.setContent("你已成功创建团队 " + team.getName());
+        messageRepository.save(message);
 
         return new IdDto(team.getId());
     }
