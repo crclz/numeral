@@ -56,7 +56,6 @@ public class MessageController {
     }
 
 
-
     @GetMapping("{id}")
     public QMessage getMessageById(@PathVariable Long id) {
         throw new NotYetImplementedException();
