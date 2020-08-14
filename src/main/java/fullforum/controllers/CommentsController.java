@@ -2,6 +2,7 @@ package fullforum.controllers;
 
 import fullforum.data.models.Access;
 import fullforum.data.models.Comment;
+import fullforum.data.models.Message;
 import fullforum.data.repos.*;
 import fullforum.dto.in.CreateCommentModel;
 import fullforum.dto.out.IdDto;
@@ -52,6 +53,8 @@ public class CommentsController {
     @Autowired
     CommentRepository commentRepository;
 
+    @Autowired
+    MessageRepository messageRepository;
 
     @Autowired
     MembershipRepository membershipRepository;
@@ -80,6 +83,13 @@ public class CommentsController {
         if (havePermission) {
             var comment = new Comment(snowflake.nextId(), model.documentId, auth.userId(), model.content);
             commentRepository.save(comment);
+
+            if (auth.userId() != document.getCreatorId()) {//只有来自他人的评论才通知文章作者
+                var message = new Message(snowflake.nextId(), -1L, document.getCreatorId());
+                message.setTitle("新评论通知");
+                message.setContent("你的文章 " + document.getTitle() + " 收到一条新评论");
+                messageRepository.save(message);
+            }
             return new IdDto(comment.getId());
         } else {
             throw new ForbidException();

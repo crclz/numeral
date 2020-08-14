@@ -1,6 +1,5 @@
 package fullforum.dto.in;
 
-import fullforum.data.models.MessageType;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -13,12 +12,16 @@ import javax.validation.constraints.NotNull;
 public class CreateMessageModel {
 
     @NotNull
-    public Long receiverId;
+    public Long sendId; //系统通知则设置该值为-1
 
     @NotNull
-    public MessageType type;
+    public Long receiverId;
 
     public String title;
 
     public String content;
+
+    public String link;
+
+
 }
