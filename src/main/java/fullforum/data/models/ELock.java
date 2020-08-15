@@ -53,4 +53,19 @@ public class ELock extends RootEntity {
 
         return false;
     }
+
+    public boolean tryRelease(long userId) {
+        var ownerId = getRealOwnerId();
+        if (ownerId == null) {
+            // 锁空闲
+            return false;
+        }
+        if (ownerId != userId) {
+            // 无权限释放
+            return false;
+        }
+        // release (expire)
+        lastAcquiredAt = 0;
+        return true;
+    }
 }
