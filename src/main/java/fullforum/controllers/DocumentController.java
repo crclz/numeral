@@ -61,6 +61,9 @@ public class DocumentController {
     @Autowired
     ViewRecordRepository viewRecordRepository;
 
+    @Autowired
+    ELockRepository eLockRepository;
+
 
     @PostMapping
     public IdDto createDocument(@RequestBody @Valid CreateDocumentModel model) {
@@ -86,7 +89,7 @@ public class DocumentController {
         boolean havePermission;
         if (auth.userId() == document.getCreatorId()) {
             havePermission = true;
-        } else if (document.getTeamId() != null){ //团队文档
+        } else if (document.getTeamId() != null) { //团队文档
             var membership = membershipRepository.findByUserIdAndTeamId(auth.userId(), document.getTeamId());
             havePermission = (membership != null && document.getTeamDocumentAccess().equals(Access.ReadWrite));
         } else { //非团队文档
@@ -130,6 +133,10 @@ public class DocumentController {
         document.setModifyCountAndModifier(auth.userId());
         documentRepository.save(document);
 
+        // 尝试释放锁 TODO: test
+        var lock = eLockRepository.findELockByDocumentId(id);
+        lock.tryRelease(auth.userId());
+        eLockRepository.save(lock);
     }
 
     @DeleteMapping("{id}")
@@ -231,10 +238,10 @@ public class DocumentController {
                             " on d.id = v.documentId" +
                             " where (v.userId = :userId)" +
                             " and d.isAbandoned = false" +
-                            " order by v.updatedAt desc " )
+                            " order by v.updatedAt desc ")
                     .setParameter("userId", auth.userId());
             results = query.getResultList();
-            for (var result:results) {
+            for (var result : results) {
                 var document = (Document) result;
                 documents.add(QDocument.convert(document, modelMapper));
                 if (documents.size() >= 15) {
@@ -297,7 +304,7 @@ public class DocumentController {
             }
 
             if (team.getLeaderId() == auth.userId()) {
-                return new UserPermission(auth.userId(), Access.ReadWrite, Access.ReadWrite,true);
+                return new UserPermission(auth.userId(), Access.ReadWrite, Access.ReadWrite, true);
             } else {
                 return new UserPermission(auth.userId(), document.getTeamDocumentAccess(),
                         document.getTeamCommentAccess(), document.getTeamCanShare());
@@ -308,8 +315,6 @@ public class DocumentController {
         }
 
     }
-
-
 
 
 }
