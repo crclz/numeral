@@ -135,8 +135,11 @@ public class DocumentController {
 
         // 尝试释放锁 TODO: test
         var lock = eLockRepository.findELockByDocumentId(id);
-        lock.tryRelease(auth.userId());
-        eLockRepository.save(lock);
+        if (lock != null) {
+            var uid = auth.userId();
+            lock.tryRelease(uid);
+            eLockRepository.save(lock);
+        }
     }
 
     @DeleteMapping("{id}")
