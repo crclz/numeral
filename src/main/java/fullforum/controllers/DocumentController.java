@@ -80,7 +80,7 @@ public class DocumentController {
         }
         var document = documentRepository.findById(id).orElse(null);
         if (document == null) {
-            throw new NotFoundException();
+            throw new NotFoundException("文档不存在");
         }
         //检查权限
         boolean havePermission;
@@ -99,7 +99,7 @@ public class DocumentController {
             document.setTitle(model.title == null ? document.getTitle() : model.title);
             document.setDescription(model.description == null ? document.getDescription() : model.description);
         } else {
-            throw new ForbidException();
+            throw new ForbidException("操作失败，你没有权限");
         }
 
         if (document.getTeamId() != null) {
@@ -139,10 +139,10 @@ public class DocumentController {
         }
         var document = documentRepository.findById(id).orElse(null);
         if (document == null) {
-            throw new NotFoundException();
+            throw new NotFoundException("文档不存在");
         }
         if (document.getCreatorId() != auth.userId()) {
-            throw new ForbidException();
+            throw new ForbidException("操作失败，你没有权限");
         }
 
         var comments = commentRepository.findAllByDocumentId(id);
@@ -179,10 +179,10 @@ public class DocumentController {
         if (document.getTeamId() != null) {
             var membership = membershipRepository.findByUserIdAndTeamId(auth.userId(), document.getTeamId());
             if (membership == null) {
-                throw new ForbidException();
+                throw new ForbidException("操作失败，你不在团队中");
             }
             if (document.getTeamDocumentAccess().equals(Access.None)) {
-                throw new ForbidException();
+                throw new ForbidException("操作失败，你没有权限");
             }
             viewRecordRepository.save(viewRecord);
             return QDocument.convert(document, modelMapper);
@@ -246,7 +246,7 @@ public class DocumentController {
             if (teamId != null) {
                 var membership = membershipRepository.findByUserIdAndTeamId(auth.userId(), teamId);
                 if (membership == null) {
-                    throw new ForbidException();
+                    throw new ForbidException("操作失败，你不在团队中");
                 }
             }
             var query = entityManager.createQuery(
@@ -280,7 +280,7 @@ public class DocumentController {
         }
         var document = documentRepository.findById(id).orElse(null);
         if (document == null) {
-            throw new NotFoundException();
+            throw new NotFoundException("文档不存在");
         }
 
         if (auth.userId() == document.getCreatorId()) {

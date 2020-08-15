@@ -11,11 +11,11 @@ import javax.persistence.Entity;
 public class Message extends RootEntity {
     @Getter
     @Setter
-    private Long senderId;//若为-1则为系统通知
+    private long senderId;//若为-1则为系统通知
 
     @Getter
     @Setter
-    private Long receiverId;
+    private long receiverId;
 
     @Getter
     @Setter

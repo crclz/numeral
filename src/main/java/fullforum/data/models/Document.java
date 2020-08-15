@@ -12,7 +12,7 @@ import javax.persistence.Entity;
 public class Document extends RootEntity {
 
     @Getter
-    private Long creatorId;
+    private long creatorId;
 
     @Getter
     @Setter

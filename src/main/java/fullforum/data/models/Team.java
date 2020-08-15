@@ -10,7 +10,7 @@ import javax.persistence.Entity;
 @Entity
 public class Team extends RootEntity {
     @Getter
-    private Long leaderId;
+    private long leaderId;
 
     @Getter
     @Setter

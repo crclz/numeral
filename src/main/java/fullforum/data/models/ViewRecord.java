@@ -9,10 +9,10 @@ import javax.persistence.Entity;
 @Entity
 public class ViewRecord extends RootEntity {
     @Getter
-    private Long userId;
+    private long userId;
 
     @Getter
-    private Long documentId;
+    private long documentId;
 
     protected ViewRecord() {
 

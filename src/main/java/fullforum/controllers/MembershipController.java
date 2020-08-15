@@ -68,7 +68,7 @@ public class MembershipController {
         }
         var membership = membershipRepository.findById(id).orElse(null);
         if (membership == null) {
-            throw new NotFoundException();
+            throw new NotFoundException("成员不在团队中");
         }
 
         var team = teamRepository.findById(membership.getTeamId()).orElse(null);
@@ -77,7 +77,7 @@ public class MembershipController {
         var message = new Message(snowflake.nextId(), -1L, membership.getUserId());
         if (auth.userId() == membership.getUserId()) {
             if (auth.userId() == team.getLeaderId()) {// 组长不能踢出自己
-                throw new ForbidException();
+                throw new ForbidException("操作失败，队长不能退出团队");
             }
             membershipRepository.deleteById(id);
             //自己主动退出团队的通知
@@ -101,7 +101,7 @@ public class MembershipController {
     public QMembership getMembershipById(@PathVariable Long id) {
         var membership = membershipRepository.findById(id).orElse(null);
         if (membership == null) {
-            throw new NotFoundException();
+            throw new NotFoundException("记录不存在");
         }
         var qUser = Quser.convert(userRepository.findById(membership.getUserId()).orElse(null), mapper);
         var qTeam = QTeam.convert(teamRepository.findById(membership.getTeamId()).orElse(null), mapper);

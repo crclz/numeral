@@ -63,7 +63,7 @@ public class MessageController {
         var receiver = userRepository.findById(model.receiverId).orElse(null);
 
         if (receiver == null) {
-            throw new NotFoundException();
+            throw new NotFoundException("用户不存在");
         }
         var message = new Message(snowflake.nextId(), model.sendId, model.receiverId);
         message.setTitle(model.title);
@@ -80,10 +80,10 @@ public class MessageController {
         }
         var message = messageRepository.findById(id).orElse(null);
         if (message == null) {
-            throw new NotFoundException();
+            throw new NotFoundException("消息不存在");
         }
         if (auth.userId() != message.getReceiverId()) {
-            throw new ForbidException();
+            throw new ForbidException("操作失败，你没有权限");
         }
         messageRepository.deleteById(id);
     }
@@ -110,7 +110,7 @@ public class MessageController {
         }
         var message = messageRepository.findById(id).orElse(null);
         if (message == null) {
-            throw new NotFoundException();
+            throw new NotFoundException("消息不存在");
         }
 
         Quser quser;

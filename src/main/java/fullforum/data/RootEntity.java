@@ -8,7 +8,7 @@ import javax.persistence.MappedSuperclass;
 @MappedSuperclass
 public abstract class RootEntity {
     @Id
-    private Long id;
+    private long id;
 
     @Getter
     private Long createdAt;

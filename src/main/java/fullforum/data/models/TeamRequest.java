@@ -11,10 +11,10 @@ import javax.persistence.Entity;
 @Entity
 public class TeamRequest extends RootEntity {
     @Getter
-    private Long userId;
+    private long userId;
 
     @Getter
-    private Long teamId;
+    private long teamId;
 
     @Getter
     private boolean isHandled = false;
@@ -34,7 +34,7 @@ public class TeamRequest extends RootEntity {
 
     public void handle(boolean agree) {
         if (isHandled) {
-            throw new IllegalStateException("Request has already been handled");
+            throw new IllegalStateException("请求已被处理");
         }
         isHandled = true;
 

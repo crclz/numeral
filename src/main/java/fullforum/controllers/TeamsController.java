@@ -5,15 +5,18 @@ import fullforum.data.models.Membership;
 import fullforum.data.models.Message;
 import fullforum.data.models.Team;
 import fullforum.data.repos.*;
+import fullforum.dto.in.CreateMessageModel;
 import fullforum.dto.in.CreateTeamModel;
 import fullforum.dto.in.PatchTeamModel;
 import fullforum.dto.out.IdDto;
 import fullforum.dto.out.QTeam;
+import fullforum.errhand.BadRequestException;
 import fullforum.errhand.ForbidException;
 import fullforum.errhand.NotFoundException;
 import fullforum.errhand.UnauthorizedException;
 import fullforum.services.IAuth;
 import fullforum.services.Snowflake;
+import org.hibernate.cfg.NotYetImplementedException;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.annotation.Validated;
@@ -75,6 +78,11 @@ public class TeamsController {
         messageRepository.save(message);
 
         return new IdDto(team.getId());
+    }
+
+    @PostMapping("{teamId}")
+    public void creatTeamInvitation(@PathVariable Long teamId, @RequestBody CreateMessageModel model) {
+        throw new NotYetImplementedException();
     }
 
     @PatchMapping("{id}")
@@ -151,6 +159,12 @@ public class TeamsController {
         }
         return qTeams;
     }
+
+
+
+
+
+
 
 
 }

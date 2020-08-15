@@ -54,7 +54,7 @@ public class UsersController {
         }
         var user = userRepository.findById(id).orElse(null);
         if (user == null) {
-            throw new NotFoundException();
+            throw new NotFoundException("用户不存在");
         }
         if (user.getId() != auth.userId()) {
             throw new ForbidException();

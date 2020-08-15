@@ -11,10 +11,10 @@ import java.lang.reflect.Member;
 @Entity
 public class Membership extends RootEntity {
     @Getter
-    private Long teamId;
+    private long teamId;
 
     @Getter
-    private Long userId;
+    private long userId;
 
     protected Membership() {
 
