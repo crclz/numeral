@@ -8,6 +8,6 @@ import org.springframework.web.server.ResponseStatusException;
  */
 public class UnauthorizedException extends ResponseStatusException {
     public UnauthorizedException() {
-        super(HttpStatus.UNAUTHORIZED, "You have to login");
+        super(HttpStatus.UNAUTHORIZED, "你还未登录，请先登录");
     }
 }

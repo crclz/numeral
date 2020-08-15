@@ -69,7 +69,7 @@ public class TeamRequestsController {
 
         // 没有membership才允许发送请求
         if (membership != null) {
-            throw new ForbidException();
+            throw new ForbidException("你已经有团队了");
         }
 
         // 没有已经存在[且未处理]request，才能发送
@@ -80,7 +80,7 @@ public class TeamRequestsController {
 
         var team = teamRepository.findById(model.teamId).orElse(null);
         if (team == null) {
-            throw new NotFoundException();
+            throw new NotFoundException("团队不存在");
         }
 
 
@@ -99,17 +99,17 @@ public class TeamRequestsController {
         }
         var request = teamRequestRepository.findById(id).orElse(null);
         if (request == null) {
-            throw new NotFoundException();
+            throw new NotFoundException("请求不存在");
         }
         if (request.isHandled()) {
             throw new BadRequestException(ErrorCode.InvalidOperation, "请求已经被处理过");
         }
         var team = teamRepository.findById(request.getTeamId()).orElse(null);
         if (team == null) {
-            throw new NotFoundException();
+            throw new NotFoundException("团队不存在");
         }
         if (auth.userId() != team.getLeaderId()) {
-            throw new ForbidException();
+            throw new ForbidException("操作失败，你没有权限");
         }
 
         request.handle(model.agree);
@@ -129,7 +129,7 @@ public class TeamRequestsController {
     public QTeamRequest getTeamRequestById(@PathVariable Long id) {
         var teamRequest = teamRequestRepository.findById(id).orElse(null);
         if (teamRequest == null) {
-            throw new NotFoundException();
+            throw new NotFoundException("请求不存在");
         }
 
         var qUser = Quser.convert(userRepository.findById(teamRequest.getUserId()).orElse(null), mapper);

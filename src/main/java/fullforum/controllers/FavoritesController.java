@@ -43,7 +43,7 @@ public class FavoritesController {
         }
         var document = documentRepository.findById(documentId).orElse(null);
         if (document == null) {
-            throw new NotFoundException();
+            throw new NotFoundException("文档不存在");
         }
         var favorite = new Favorite(snowflake.nextId(), auth.userId(), documentId);
         favoriteRepository.save(favorite);
@@ -57,7 +57,7 @@ public class FavoritesController {
         }
         var favorite = favoriteRepository.findById(id).orElse(null);
         if (favorite == null) {
-            throw new NotFoundException();
+            throw new NotFoundException("收藏记录不存在");
         }
         favoriteRepository.deleteById(id);
     }

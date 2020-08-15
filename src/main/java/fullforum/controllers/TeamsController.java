@@ -5,15 +5,18 @@ import fullforum.data.models.Membership;
 import fullforum.data.models.Message;
 import fullforum.data.models.Team;
 import fullforum.data.repos.*;
+import fullforum.dto.in.CreateMessageModel;
 import fullforum.dto.in.CreateTeamModel;
 import fullforum.dto.in.PatchTeamModel;
 import fullforum.dto.out.IdDto;
 import fullforum.dto.out.QTeam;
+import fullforum.errhand.BadRequestException;
 import fullforum.errhand.ForbidException;
 import fullforum.errhand.NotFoundException;
 import fullforum.errhand.UnauthorizedException;
 import fullforum.services.IAuth;
 import fullforum.services.Snowflake;
+import org.hibernate.cfg.NotYetImplementedException;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.annotation.Validated;
@@ -75,6 +78,38 @@ public class TeamsController {
         messageRepository.save(message);
 
         return new IdDto(team.getId());
+    }
+
+    @PostMapping("{id}")
+    public void creatTeamInvitation(@PathVariable Long id, @RequestBody @Valid CreateMessageModel model) {
+        if(!auth.isLoggedIn()) {
+            throw new UnauthorizedException();
+        }
+
+        var team = teamRepository.findById(id).orElse(null);
+        if (team == null) {
+            throw new NotFoundException("团队不存在");
+        }
+        var membership = membershipRepository.findByUserIdAndTeamId(auth.userId(), id);
+        if (membership == null) {
+            throw new ForbidException("操作失败，你不在该团队中");
+        }
+
+        var receiver = userRepository.findById(model.receiverId).orElse(null);
+        if (receiver == null) {
+            throw new NotFoundException("该用户不存在");
+        }
+
+        var sender = userRepository.findById(auth.userId()).orElse(null);
+        assert sender != null;
+
+        var message = new Message(snowflake.nextId(), auth.userId(), model.receiverId);
+        message.setTitle("团队邀请通知");
+
+        message.setContent(sender.getUsername() + " 邀请你加入团队 " + team.getName() + " 点击链接加入: " + model.getLink());
+
+        messageRepository.save(message);
+
     }
 
     @PatchMapping("{id}")
@@ -151,6 +186,12 @@ public class TeamsController {
         }
         return qTeams;
     }
+
+
+
+
+
+
 
 
 }

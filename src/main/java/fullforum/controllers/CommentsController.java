@@ -66,7 +66,7 @@ public class CommentsController {
         }
         var document = documentRepository.findById(model.documentId).orElse(null);
         if (document == null) {
-            throw new NotFoundException();
+            throw new NotFoundException("文档不存在！");
         }
 
         //检查权限
@@ -92,7 +92,7 @@ public class CommentsController {
             }
             return new IdDto(comment.getId());
         } else {
-            throw new ForbidException();
+            throw new ForbidException("评论失败，你没有权限");
         }
     }
 
@@ -103,10 +103,10 @@ public class CommentsController {
         }
         var comment = commentRepository.findById(id).orElse(null);
         if (comment == null) {
-            throw new NotFoundException();
+            throw new NotFoundException("评论不存在");
         }
         if (comment.getUserId() != auth.userId()) {
-            throw new ForbidException();
+            throw new ForbidException("操作失败，你没有权限");
         }
         commentRepository.deleteById(id);
     }
@@ -156,7 +156,7 @@ public class CommentsController {
         }
 
         if (!havePermission){
-            throw new ForbidException();
+            throw new ForbidException("操作失败，你没有权限");
         }
 
 

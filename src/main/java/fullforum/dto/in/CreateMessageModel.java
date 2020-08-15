@@ -10,7 +10,6 @@ import javax.validation.constraints.NotNull;
 @AllArgsConstructor
 @NoArgsConstructor
 public class CreateMessageModel {
-
     @NotNull
     public Long sendId; //系统通知则设置该值为-1
 

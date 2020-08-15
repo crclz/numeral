@@ -9,10 +9,10 @@ import javax.persistence.Entity;
 @Entity
 public class Comment extends RootEntity {
     @Getter
-    private Long documentId;
+    private long documentId;
 
     @Getter
-    private Long userId;
+    private long userId;
 
     @Getter
     private String content;
