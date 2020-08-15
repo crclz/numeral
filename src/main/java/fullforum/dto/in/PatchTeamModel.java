@@ -14,6 +14,6 @@ public class PatchTeamModel {
     @Size(min = 1, max = 16)
     public String name;
 
-    @Size(max = 400)
+    @Size(max = 255)
     public String description;
 }

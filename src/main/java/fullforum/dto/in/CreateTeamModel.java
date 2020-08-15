@@ -17,6 +17,6 @@ public class CreateTeamModel {
     public String name;
 
     @NotNull
-    @Size(max = 400)
+    @Size(max = 255)
     public String description;
 }
