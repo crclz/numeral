@@ -1,8 +1,10 @@
 package fullforum.controllers;
 
 import fullforum.data.models.Membership;
+import fullforum.data.models.Message;
 import fullforum.data.models.TeamRequest;
 import fullforum.data.repos.MembershipRepository;
+import fullforum.data.repos.MessageRepository;
 import fullforum.data.repos.TeamRepository;
 import fullforum.data.repos.UserRepository;
 import fullforum.dto.out.QMembership;
@@ -13,6 +15,7 @@ import fullforum.errhand.ForbidException;
 import fullforum.errhand.NotFoundException;
 import fullforum.errhand.UnauthorizedException;
 import fullforum.services.IAuth;
+import fullforum.services.Snowflake;
 import io.swagger.annotations.ApiOperation;
 import org.hibernate.cfg.NotYetImplementedException;
 import org.modelmapper.ModelMapper;
@@ -37,6 +40,9 @@ public class MembershipController {
     ModelMapper mapper;
 
     @Autowired
+    Snowflake snowflake;
+
+    @Autowired
     EntityManager entityManager;
 
     @Autowired
@@ -47,6 +53,9 @@ public class MembershipController {
 
     @Autowired
     UserRepository userRepository;
+
+    @Autowired
+    MessageRepository messageRepository;
 
 
     // 没有POST，因为membership由[同意请求]顺带添加
@@ -65,19 +74,27 @@ public class MembershipController {
         var team = teamRepository.findById(membership.getTeamId()).orElse(null);
         assert team != null;//若team 为null则membership也为null
 
-
-
+        var message = new Message(snowflake.nextId(), -1L, membership.getUserId());
         if (auth.userId() == membership.getUserId()) {
             if (auth.userId() == team.getLeaderId()) {// 组长不能踢出自己
                 throw new ForbidException();
             }
             membershipRepository.deleteById(id);
+            //自己主动退出团队的通知
+            message.setTitle("退出团队通知");
+            message.setContent("你已成功退出团队 " + team.getName());
         } else {
             if (auth.userId() != team.getLeaderId()) {
                 throw new ForbidException();
             }
             membershipRepository.deleteById(id);
+            //被踢出团队的通知
+            message.setSenderId(team.getLeaderId());
+            message.setTitle("踢出团队通知");
+            message.setContent("你已被踢出团队 " + team.getName());
         }
+        messageRepository.save(message);
+
     }
 
     @GetMapping("{id}")

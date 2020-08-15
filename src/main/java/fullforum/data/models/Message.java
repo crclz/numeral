@@ -7,12 +7,11 @@ import lombok.Setter;
 
 import javax.persistence.Entity;
 
-@AllArgsConstructor
 @Entity
 public class Message extends RootEntity {
     @Getter
     @Setter
-    private Long senderId;
+    private Long senderId;//若为-1则为系统通知
 
     @Getter
     @Setter
@@ -28,9 +27,20 @@ public class Message extends RootEntity {
 
     @Getter
     @Setter
+    private String link;
+
+    @Getter
+    @Setter
     private Boolean haveRead = false;
 
     protected Message() {}
+
+    public Message(Long id, Long senderId, Long receiverId) {
+        super(id);
+        this.senderId = senderId;
+        this.receiverId = receiverId;
+    }
+
 
 
 

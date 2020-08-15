@@ -1,12 +1,10 @@
 package fullforum.controllers;
 
 import fullforum.data.models.Membership;
+import fullforum.data.models.Message;
 import fullforum.data.models.Team;
 import fullforum.data.models.TeamRequest;
-import fullforum.data.repos.MembershipRepository;
-import fullforum.data.repos.TeamRepository;
-import fullforum.data.repos.TeamRequestRepository;
-import fullforum.data.repos.UserRepository;
+import fullforum.data.repos.*;
 import fullforum.dto.in.CreateTeamModel;
 import fullforum.dto.in.CreateTeamRequestModel;
 import fullforum.dto.in.PatchTeamRequestModel;
@@ -48,6 +46,9 @@ public class TeamRequestsController {
 
     @Autowired
     UserRepository userRepository;
+
+    @Autowired
+    MessageRepository messageRepository;
 
     @Autowired
     MembershipRepository membershipRepository;
@@ -114,7 +115,12 @@ public class TeamRequestsController {
         request.handle(model.agree);
         if (model.agree) {
             var membership = new Membership(snowflake.nextId(), request.getTeamId(), request.getUserId());
+
+            var message = new Message(snowflake.nextId(), -1L, membership.getUserId());
+            message.setTitle("加入团队通知");
+            message.setContent("你已成功加入团队 " + team.getName());
             membershipRepository.save(membership);
+            messageRepository.save(message);
         }
         teamRequestRepository.save(request);
     }
