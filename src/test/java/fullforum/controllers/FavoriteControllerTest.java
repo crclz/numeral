@@ -1,28 +1,19 @@
 package fullforum.controllers;
 
 import fullforum.BaseTest;
-import fullforum.data.models.Access;
 import fullforum.data.models.Document;
 import fullforum.data.models.Favorite;
 import fullforum.data.repos.DocumentRepository;
 import fullforum.data.repos.FavoriteRepository;
 import fullforum.dependency.FakeAuth;
-import fullforum.dto.in.CreateDocumentModel;
-import fullforum.dto.in.PatchDocumentModel;
-import fullforum.dto.out.QDocument;
-import fullforum.errhand.ForbidException;
 import fullforum.errhand.NotFoundException;
 import fullforum.errhand.UnauthorizedException;
-import fullforum.services.Snowflake;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.test.web.servlet.MockMvc;
-
-import java.util.List;
-
-import static org.junit.jupiter.api.Assertions.*;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 public class FavoriteControllerTest extends BaseTest{
     @Autowired
@@ -55,7 +46,6 @@ public class FavoriteControllerTest extends BaseTest{
         auth.setRealUserId(1);
         var document = new Document(2, 1, "hahah",  "model1.description", "model1.data");
         documentRepository.save(document);
-        Favorite favorite = new Favorite(3, 1,2);
         var fid = favoritesController.createFavorite(2L);
         assertNotNull(fid);
 

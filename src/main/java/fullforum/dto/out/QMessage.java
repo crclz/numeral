@@ -5,7 +5,7 @@ import lombok.Data;
 import org.modelmapper.ModelMapper;
 
 @Data
-public class QMessage {
+public class QMessage extends BaseQDto{
     public Long senderId;
 
     public Long receiverId;
@@ -13,6 +13,8 @@ public class QMessage {
     public String title;
 
     public String content;
+
+    public String link;
 
     public boolean haveRead = false;
 
