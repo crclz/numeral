@@ -369,24 +369,34 @@ public class DocumentControllerTest extends BaseTest {
 
 
 
-//    @Test
-//    void  test() {
-//        auth.setRealUserId(1);
-//        var document = new Document(1, 1, "hahah",  "model1.description", "model1.data");
-//        documentRepository.save(document);
-//        var team = new Team(123L, 2L, "ASdad", "2313");
-//        teamRepository.save(team);
-//        var patch = new PatchDocumentModel();
-//        patch.description = "eeeee";
-//        patch.teamId = 123L;
-//        documentController.patchDocument(patch, 1);
-//
-//        var docInDb = documentRepository.findById(1L).orElse(null);
-//        assertThat(docInDb).isNotNull();
-//        assertThat(docInDb.getDescription()).isEqualTo(patch.description);
-//        assertEquals(docInDb.getTeamId(), 123L);
-//
-//    }
+    @Test
+    void  test() {
+        auth.setRealUserId(1);
+        var document = new Document(999, 1, "hahah",  "model1.description", "model1.data");
+        documentRepository.save(document);
+        var team = new Team(123L, 2L, "ASdad", "2313");
+        teamRepository.save(team);
+
+        var membership = new Membership(99999L, 123L, 1L);
+        membershipRepository.save(membership);
+
+        var patch = new PatchDocumentModel();
+        patch.description = "eeeee";
+        patch.teamId = 123L;
+        documentController.patchDocument(patch, 999);
+
+
+
+        var membershipInDb = membershipRepository.findByUserIdAndTeamId(auth.userId(), 123L);
+        assertNotNull(membershipInDb);
+
+
+        var docInDb = documentRepository.findById(999L).orElse(null);
+        assertNotNull(docInDb);
+        assertThat(docInDb.getDescription()).isEqualTo(patch.description);
+        assertEquals(docInDb.getTeamId(), 123L);
+
+    }
 }
 
 
