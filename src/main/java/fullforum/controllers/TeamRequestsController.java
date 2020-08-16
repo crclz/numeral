@@ -69,7 +69,7 @@ public class TeamRequestsController {
 
         // 没有membership才允许发送请求
         if (membership != null) {
-            throw new ForbidException("你已经有团队了");
+            throw new ForbidException("你已经在该团队中了");
         }
 
         // 没有已经存在[且未处理]request，才能发送
@@ -82,7 +82,6 @@ public class TeamRequestsController {
         if (team == null) {
             throw new NotFoundException("团队不存在");
         }
-
 
         var teamRequest = new TeamRequest(snowflake.nextId(), auth.userId(), model.teamId);
         teamRequestRepository.save(teamRequest);
@@ -115,7 +114,6 @@ public class TeamRequestsController {
         request.handle(model.agree);
         if (model.agree) {
             var membership = new Membership(snowflake.nextId(), request.getTeamId(), request.getUserId());
-
             var message = new Message(snowflake.nextId(), -1L, membership.getUserId());
             message.setTitle("加入团队通知");
             message.setContent("你已成功加入团队 " + team.getName());

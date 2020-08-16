@@ -137,8 +137,8 @@ public class DocumentController {
                 if (teamInDb == null) {
                     throw new NotFoundException("该团队不存在");
                 }
-                var membership = membershipRepository.findByUserIdAndTeamId(auth.userId(), teamInDb.getId());
 
+                var membership = membershipRepository.findByUserIdAndTeamId(auth.userId(), teamInDb.getId());
                 if (membership == null) {
                     throw new ForbidException("操作失败，你不在该团队中");
                 }

@@ -1,10 +1,7 @@
 package fullforum.controllers;
 
 import fullforum.BaseTest;
-import fullforum.data.models.Membership;
-import fullforum.data.models.Message;
-import fullforum.data.models.Team;
-import fullforum.data.models.User;
+import fullforum.data.models.*;
 import fullforum.data.repos.*;
 import fullforum.dependency.FakeAuth;
 import fullforum.dto.in.CreateMessageModel;
@@ -183,7 +180,7 @@ public class TeamControllerTest extends BaseTest {
     }
 
     @Test
-    void deleteTeam_throw_ForbidException_when_user_is_not_creator() {
+    void deleteTeam_throw_ForbidException_when_user_is_not_leader() {
         auth.setRealUserId(1);
         var team = new Team(1L, 2L, "dasas", "Dasd");
         teamRepository.save(team);
@@ -191,7 +188,7 @@ public class TeamControllerTest extends BaseTest {
     }
 
     @Test
-    void deleteTeam_return_ok_and_update_db_when_all_ok() {
+    void deleteTeam_return_ok_and_send_message_to_members_and_update_db_when_all_ok() {
         auth.setRealUserId(2);
         var team = new Team(1L, 2L, "dasas", "Dasd");
         teamRepository.save(team);
@@ -199,10 +196,32 @@ public class TeamControllerTest extends BaseTest {
         var teamInDb = teamRepository.findById(1L).orElse(null);
         assertThat(teamInDb).isNotNull();
 
+        var document1 = new Document(101L, 11L, "ASda", "Dasdsa", "Dsadsda");
+        var document2 = new Document(102L, 12L, "ASda", "Dasdsa", "Dsadsda");
+        document1.setTeamId(1L);
+        document2.setTeamId(1L);
+        documentRepository.save(document1);
+        documentRepository.save(document2);
+
+        var membership1 = new Membership(201L, 1L, 11L);
+        var membership2 = new Membership(202L, 1L, 12L);
+        membershipRepository.save(membership1);
+        membershipRepository.save(membership2);
+
         teamsController.deleteTeam(1L);
 
         teamInDb = teamRepository.findById(1L).orElse(null);
         assertThat(teamInDb).isNull();
+
+        var messages = messageRepository.findAllByReceiverId(11L);
+        assertThat(messages.size() == 1);
+        for (Message message : messages) {
+            assertEquals(message.getSenderId(), -1L);
+            assertEquals(message.getTitle(), "团队解散通知");
+        }
+
+        var membershipInDb = membershipRepository.findByUserIdAndTeamId(11L, 1L);
+        assertNull(membershipInDb);
     }
 
     //test getTeamById
@@ -225,7 +244,7 @@ public class TeamControllerTest extends BaseTest {
         assertThat(qTeam.getName()).isEqualTo(team.getName());
     }
 
-    //test getDocuments
+    //test getTeams
     @Test
 
     void getTeams_return_list_of_team_infos() {
@@ -251,8 +270,4 @@ public class TeamControllerTest extends BaseTest {
         }
 
     }
-
-
-
-
 }

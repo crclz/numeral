@@ -1,6 +1,7 @@
 package fullforum.controllers;
 
 import fullforum.BaseTest;
+import fullforum.data.models.Membership;
 import fullforum.data.models.Team;
 import fullforum.data.models.TeamRequest;
 import fullforum.data.models.User;
@@ -48,6 +49,15 @@ public class TeamRequestControllerTest extends BaseTest {
     void creatTeamRequest_throw_UnauthorizedException_when_user_is_not_log_in() {
         var model = new CreateTeamRequestModel(1L);
         assertThrows(UnauthorizedException.class, () -> teamRequestsController.createTeamRequest(model));
+    }
+
+    @Test
+    void creatTeamRequest_throw_ForbidException_when_user_is_already_in_the_team() {
+        auth.setRealUserId(3L);
+        var model = new CreateTeamRequestModel(1L);
+        var membership = new Membership(999L, 1L, 3L);
+        membershipRepository.save(membership);
+        assertThrows(ForbidException.class, () -> teamRequestsController.createTeamRequest(model));
     }
 
     @Test
@@ -149,7 +159,7 @@ public class TeamRequestControllerTest extends BaseTest {
 
     //    //test getTeamRequests
     @Test
-    void getTeamRequestss_return_list_of_request_infos() {
+    void getTeamRequests_return_list_of_request_infos() {
         auth.setRealUserId(1);
         var requestEntity1 = new TeamRequest(1L, 2L, 3L);
         var requestEntity2 = new TeamRequest(2L, 3L, 3L);

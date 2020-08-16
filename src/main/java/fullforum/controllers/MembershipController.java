@@ -85,7 +85,7 @@ public class MembershipController {
             message.setContent("你已成功退出团队 " + team.getName());
         } else {
             if (auth.userId() != team.getLeaderId()) {
-                throw new ForbidException();
+                throw new ForbidException("操作失败，你没有权限");
             }
             membershipRepository.deleteById(id);
             //被踢出团队的通知
@@ -99,6 +99,9 @@ public class MembershipController {
 
     @GetMapping("{id}")
     public QMembership getMembershipById(@PathVariable Long id) {
+        if (!auth.isLoggedIn()) {
+            throw new UnauthorizedException();
+        }
         var membership = membershipRepository.findById(id).orElse(null);
         if (membership == null) {
             throw new NotFoundException("记录不存在");
@@ -114,6 +117,9 @@ public class MembershipController {
             @RequestParam(required = false) Long teamId,
             @RequestParam(required = false) Long userId
     ) {
+        if (!auth.isLoggedIn()) {
+            throw new UnauthorizedException();
+        }
         var qMemberships = new ArrayList<QMembership>();
         var query = entityManager.createQuery(
                 "select m from Membership m" +
