@@ -138,13 +138,13 @@ public class DocumentController {
                     throw new NotFoundException("该团队不存在");
                 }
                 var membership = membershipRepository.findByUserIdAndTeamId(auth.userId(), teamInDb.getId());
+
                 if (membership == null) {
                     throw new ForbidException("操作失败，你不在该团队中");
                 }
                 document.setTeamId(model.teamId);
             }
 
-            document.setTeamId(model.teamId == null ? document.getTeamId() : model.teamId);
             document.setIsAbandoned(model.isAbandoned == null ? document.getIsAbandoned() : model.isAbandoned);
             document.setPublicDocumentAccess(model.publicDocumentAccess == null ? document.getPublicCommentAccess()
                     : model.publicDocumentAccess);
