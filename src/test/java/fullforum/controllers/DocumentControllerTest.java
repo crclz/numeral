@@ -145,6 +145,27 @@ public class DocumentControllerTest extends BaseTest {
         assertThat(docInDb).isNotNull();
         assertThat(docInDb.getDescription()).isEqualTo(patch.description);
 
+        //测试作者权限
+        var team = new Team(100L, 99L, "#1231", "@#12312");
+        teamRepository.save(team);
+
+        var document1 = new Document(10, 1, "wwww", "sadasdas", "ASdadasdsada");
+        document1.setTeamId(100L);
+        documentRepository.save(document1);
+
+        var model = new PatchDocumentModel();
+        model.teamCanShare = false;
+        model.teamCommentAccess = Access.None;
+        model.setTeamId(-1L);
+
+        documentController.patchDocument(model, 10L);
+
+        var docInDb1 = documentRepository.findById(10L).orElse(null);
+        assertThat(docInDb1).isNotNull();
+        assertFalse(docInDb1.getTeamCanShare());
+        assertNull(docInDb1.getTeamId());
+        assertEquals(docInDb1.getTeamCommentAccess(), Access.None);
+
     }
 
     //test removeDocument
