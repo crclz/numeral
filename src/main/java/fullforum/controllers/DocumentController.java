@@ -110,7 +110,7 @@ public class DocumentController {
             assert team != null;//删除team的时候会清空doc的teamId
 
             if (auth.userId() == team.getLeaderId()) { //队长可以修改文档的团队权限
-                if (model.teamId == -1) {
+                if (model.teamId != null && model.teamId == -1) {
                     document.setTeamId(null);
                 } else if (model.teamId != null){
                     var teamInDb = teamRepository.findById(model.teamId).orElse(null);
@@ -130,7 +130,7 @@ public class DocumentController {
         }
 
         if (auth.userId() == document.getCreatorId()) { //创建者可以修改文档的公共权限
-            if (model.teamId == -1) {
+            if (model.teamId != null && model.teamId == -1) {
                 document.setTeamId(null);
             } else if (model.teamId != null){
                 var teamInDb = teamRepository.findById(model.teamId).orElse(null);
