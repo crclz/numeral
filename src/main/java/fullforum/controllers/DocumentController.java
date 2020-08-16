@@ -108,8 +108,18 @@ public class DocumentController {
         if (document.getTeamId() != null) {
             var team = teamRepository.findById(document.getTeamId()).orElse(null);
             assert team != null;//删除team的时候会清空doc的teamId
-            if (auth.userId() == team.getLeaderId()) {
-                document.setTeamId(model.teamId == null ? document.getTeamId() : model.teamId);
+
+            if (auth.userId() == team.getLeaderId()) { //队长可以修改文档的团队权限
+                if (model.teamId == -1) {
+                    document.setTeamId(null);
+                } else if (model.teamId != null){
+                    var teamInDb = teamRepository.findById(model.teamId).orElse(null);
+                    if (teamInDb == null) {
+                        throw new NotFoundException("该团队不存在");
+                    }
+                    document.setTeamId(model.teamId);
+                }
+
                 document.setTeamDocumentAccess(model.teamDocumentAccess == null ? document.getTeamCommentAccess()
                         : model.teamDocumentAccess);
                 document.setTeamCommentAccess(model.teamCommentAccess == null ? document.getTeamCommentAccess()
@@ -119,7 +129,21 @@ public class DocumentController {
             }
         }
 
-        if (auth.userId() == document.getCreatorId()) {
+        if (auth.userId() == document.getCreatorId()) { //创建者可以修改文档的公共权限
+            if (model.teamId == -1) {
+                document.setTeamId(null);
+            } else if (model.teamId != null){
+                var teamInDb = teamRepository.findById(model.teamId).orElse(null);
+                if (teamInDb == null) {
+                    throw new NotFoundException("该团队不存在");
+                }
+                var membership = membershipRepository.findByUserIdAndTeamId(auth.userId(), teamInDb.getId());
+                if (membership == null) {
+                    throw new ForbidException("操作失败，你不在该团队中");
+                }
+                document.setTeamId(model.teamId);
+            }
+
             document.setTeamId(model.teamId == null ? document.getTeamId() : model.teamId);
             document.setIsAbandoned(model.isAbandoned == null ? document.getIsAbandoned() : model.isAbandoned);
             document.setPublicDocumentAccess(model.publicDocumentAccess == null ? document.getPublicCommentAccess()
@@ -129,6 +153,7 @@ public class DocumentController {
             document.setPublicCanShare(model.publicCanShare == null ? document.getPublicCanShare()
                     : model.publicCanShare);
         }
+
         document.updatedAtNow();
         document.setModifyCountAndModifier(auth.userId());
         documentRepository.save(document);
