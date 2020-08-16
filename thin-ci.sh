@@ -1,3 +1,5 @@
+#!/bin/bash
+
 set -e
 
 echo 'make sure the code is the newest'
