@@ -105,11 +105,9 @@ public class TeamsController {
 
         var message = new Message(snowflake.nextId(), auth.userId(), model.receiverId);
         message.setTitle("团队邀请通知");
-
         message.setContent(sender.getUsername() + " 邀请你加入团队 " + team.getName() + " 点击链接加入: " + model.getLink());
-
+        message.setLink(model.link);
         messageRepository.save(message);
-
     }
 
     @PatchMapping("{id}")
