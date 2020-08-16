@@ -4,6 +4,7 @@ import fullforum.data.RootEntity;
 import lombok.Getter;
 import lombok.Setter;
 
+import javax.persistence.Column;
 import javax.persistence.Entity;
 
 @Entity
@@ -15,6 +16,7 @@ public class Comment extends RootEntity {
     private long userId;
 
     @Getter
+    @Column(columnDefinition = "text", length = 1024)
     private String content;
 
     protected Comment() {

@@ -15,6 +15,6 @@ public class CreateCommentModel {
     public Long documentId;
 
     @NotNull
-    @Size(min = 1, max = 140)
+    @Size(min = 1, max = 1024)
     public String content;
 }
