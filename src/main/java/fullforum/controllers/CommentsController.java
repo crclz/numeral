@@ -141,7 +141,7 @@ public class CommentsController {
             if (document == null) {
                 return new ArrayList<>();
             }
-            if (document.getTeamId() != null) {
+            if (document.getTeamId() != null) { //团队文档则按照团队权限
                 var team = teamRepository.findById(document.getTeamId()).orElse(null);
                 assert team != null;
                 var leaderId = team.getLeaderId();
