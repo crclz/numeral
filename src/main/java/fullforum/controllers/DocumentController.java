@@ -129,7 +129,7 @@ public class DocumentController {
             }
         }
 
-        if (auth.userId() == document.getCreatorId()) { //创建者可以修改文档的公共权限
+        if (auth.userId() == document.getCreatorId()) { //创建者可以修改文档的所有权限
             if (model.teamId != null && model.teamId == -1) {
                 document.setTeamId(null);
             } else if (model.teamId != null){
@@ -144,7 +144,12 @@ public class DocumentController {
                 }
                 document.setTeamId(model.teamId);
             }
-
+            document.setTeamDocumentAccess(model.teamDocumentAccess == null ? document.getTeamCommentAccess()
+                    : model.teamDocumentAccess);
+            document.setTeamCommentAccess(model.teamCommentAccess == null ? document.getTeamCommentAccess()
+                    : model.teamCommentAccess);
+            document.setTeamCanShare(model.teamCanShare == null ? document.getTeamCanShare()
+                    : model.teamCanShare);
             document.setIsAbandoned(model.isAbandoned == null ? document.getIsAbandoned() : model.isAbandoned);
             document.setPublicDocumentAccess(model.publicDocumentAccess == null ? document.getPublicCommentAccess()
                     : model.publicDocumentAccess);
