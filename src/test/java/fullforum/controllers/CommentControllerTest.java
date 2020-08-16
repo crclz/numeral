@@ -164,6 +164,7 @@ public class CommentControllerTest extends BaseTest{
         assertEquals(qComment.getDocumentId(), model.documentId);
         assertEquals(qComment.getUserId(), auth.userId());
 
+
     }
     //test getComments
 

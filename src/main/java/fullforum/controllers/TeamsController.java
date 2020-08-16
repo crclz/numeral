@@ -151,6 +151,14 @@ public class TeamsController {
             documentRepository.save(teamDocument);
         }
 
+        var memberships = membershipRepository.findAllByTeamId(id);
+        for (var membership : memberships) {
+            var message = new Message(snowflake.nextId(), -1L, membership.getUserId());
+            message.setTitle("团队解散通知");
+            message.setContent("你所在的团队 " + team.getName() + " 已解散");
+            messageRepository.save(message);
+        }
+
         membershipRepository.deleteAllByTeamId(id);
         teamRepository.deleteById(id);
     }

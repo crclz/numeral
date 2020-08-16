@@ -12,8 +12,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class FavoriteControllerTest extends BaseTest{
     @Autowired
@@ -113,7 +112,8 @@ public class FavoriteControllerTest extends BaseTest{
     @Test
     void getFavoriteByDocumentId_return_null_when_favorite_is_not_exist() {
         auth.setRealUserId(1);
-        favoritesController.getFavoriteByDocumentId(1L);
+        assertNull(favoritesController.getFavoriteByDocumentId(1L));
+
     }
 
     @Test

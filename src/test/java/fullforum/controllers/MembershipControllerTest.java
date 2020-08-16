@@ -57,7 +57,7 @@ public class MembershipControllerTest extends BaseTest {
     }
 
     @Test
-    void deleteMembership_throw_ForbidException_when_user_is_creator_of_team() {
+    void deleteMembership_throw_ForbidException_when_user_is_leader_of_team() {
         var team = new Team(1L, 2L, "dsad", "adsd");
         teamRepository.save(team);
         var membership = new Membership(2L, 1L, 2L);
@@ -68,7 +68,7 @@ public class MembershipControllerTest extends BaseTest {
     }
 
     @Test
-    void deleteMembership_throw_ForbidException_when_user_is_not_creator_of_team_and_membership() {
+    void deleteMembership_throw_ForbidException_when_user_is_not_leader_of_team_but_try_to_delete_team_member() {
         var team = new Team(1L, 2L, "dsad", "adsd");
         teamRepository.save(team);
         var membership = new Membership(2L, 1L, 2L);
@@ -95,13 +95,21 @@ public class MembershipControllerTest extends BaseTest {
     }
 
     //test getMembershipById
+
+    @Test
+    void getMembershipById_throw_UnauthorizedException_when_user_is_not_login() {
+        assertThrows(UnauthorizedException.class, () -> membershipController.getMembershipById(1L));
+    }
+
     @Test
     void getMembershipById_throw_NotFoundException_when_membership_is_not_exist() {
+        auth.setRealUserId(1);
         assertThrows(NotFoundException.class, () -> membershipController.getMembershipById(1L));
     }
 
     @Test
     void getMembershipById_return_membership_info_when_membership_exist() {
+        auth.setRealUserId(1);
         var user = new User(2L, "n13n", "Dasdsad", "sadsadad", "sadasdsad");
         userRepository.save(user);
         var team = new Team(1L, 3L, "dsad", "adsd");
@@ -119,7 +127,13 @@ public class MembershipControllerTest extends BaseTest {
     //test getMemberships
 
     @Test
+    void getMemberships_throw_UnauthorizedException_when_user_is_not_login() {
+        assertThrows(UnauthorizedException.class, () -> membershipController.getMemberships(3L, 2L));
+    }
+
+    @Test
     void getMemberships_return_list_of_membership_info() {
+        auth.setRealUserId(1);
         var userEntity1 = new User(2L, "n22n", "Dasdsad", "sadsadad", "sadasdsad");
         var userEntity2 = new User(3L, "nn22", "Dasdsad", "sadsadad", "sadasdsad");
         var userEntity3 = new User(4L, "n32n", "Dasdsad", "sadsadad", "sadasdsad");
