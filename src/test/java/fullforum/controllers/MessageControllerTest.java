@@ -144,7 +144,7 @@ public class MessageControllerTest extends BaseTest {
         var messageInDb1 = messageController.getMessageById(998L);
         assertNotNull(messageInDb1);
         assertNull(messageInDb1.getSender());
-        assertEquals(messageInDb1.receiverId, 1L);
+        assertEquals(messageInDb1.getReceiverId(), 1L);
 
         var messageInDb2 = messageController.getMessageById(999L);
         assertNotNull(messageInDb2);
@@ -191,10 +191,10 @@ public class MessageControllerTest extends BaseTest {
         var messagesInDb = messageController.getMessages(5L, 1L, "dsa", false);
         assertEquals(messagesInDb.size(), 2);
         for (var qMessage : messagesInDb) {
-            assertEquals(qMessage.senderId, 5L);
-            assertEquals(qMessage.receiverId, 1L);
-            assertThat(qMessage.title).contains("dsa");
-            assertFalse(qMessage.haveRead);
+            assertEquals(qMessage.getSender().getId(), 5L);
+            assertEquals(qMessage.getReceiverId(), 1L);
+            assertThat(qMessage.getTitle()).contains("dsa");
+            assertFalse(qMessage.isHaveRead());
         }
 
 

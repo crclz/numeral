@@ -6,19 +6,19 @@ import org.modelmapper.ModelMapper;
 
 @Data
 public class QMessage extends BaseQDto{
-    public Long senderId;
+    private long senderId;
 
-    public Long receiverId;
+    private long receiverId;
 
-    public String title;
+    private String title;
 
-    public String content;
+    private String content;
 
-    public String link;
+    private String link;
 
-    public boolean haveRead = false;
+    private boolean haveRead = false;
 
-    public Quser sender;
+    private Quser sender;
 
     public static QMessage convert(Message message, Quser sender, ModelMapper mapper) {
         QMessage qMessage = mapper.map(message, QMessage.class);

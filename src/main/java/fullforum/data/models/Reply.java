@@ -4,33 +4,33 @@ import fullforum.data.RootEntity;
 import lombok.Getter;
 import lombok.Setter;
 
-import javax.persistence.Column;
 import javax.persistence.Entity;
 
 @Entity
-public class Comment extends RootEntity {
+public class Reply extends RootEntity {
     @Getter
-    private long documentId;
+    private long commentId;
 
     @Getter
-    private long userId;
+    long userId;
 
     @Getter
-    @Column(length = 1024)
+    private long targetUserId;
+
+    @Getter
     private String content;
 
     @Getter
     @Setter
     private int thumbCount = 0;
 
-    protected Comment() {
+    protected Reply() {}
 
-    }
-
-    public Comment(long id, long documentId, long userId, String content) {
+    public Reply(long id, long commentId,long userId,  long targetUserId, String content) {
         super(id);
-        this.documentId = documentId;
+        this.commentId = commentId;
         this.userId = userId;
+        this.targetUserId = targetUserId;
         this.content = content;
     }
 
