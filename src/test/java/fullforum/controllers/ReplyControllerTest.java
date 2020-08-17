@@ -1,10 +1,7 @@
 package fullforum.controllers;
 
 import fullforum.BaseTest;
-import fullforum.data.models.Comment;
-import fullforum.data.models.Message;
-import fullforum.data.models.Reply;
-import fullforum.data.models.User;
+import fullforum.data.models.*;
 import fullforum.data.repos.*;
 import fullforum.dependency.FakeAuth;
 import fullforum.dto.in.CreateReplyModel;
@@ -47,6 +44,9 @@ public class ReplyControllerTest extends BaseTest {
 
     @Autowired
     CommentRepository commentRepository;
+
+    @Autowired
+    ThumbRepository thumbRepository;
 
     @Autowired
     MessageRepository messageRepository;
@@ -140,6 +140,9 @@ public class ReplyControllerTest extends BaseTest {
         var user = new User(100L, "32323", "@13123", "!@#231", "@!312312");
         userRepository.save(user);
 
+        var thumb = new Thumb(99, 1, 100, TargetType.Reply);
+        thumbRepository.save(thumb);
+
         var reply = new Reply(100L, 10L,100L, 200L, "!23213");
         replyRepository.save(reply);
 
@@ -148,13 +151,14 @@ public class ReplyControllerTest extends BaseTest {
 
         assertEquals(reply.getCommentId(), replyInDb.getCommentId());
         assertEquals(reply.getTargetUserId(), replyInDb.getTargetUserId());
+        assertNotNull(replyInDb.getMyThumb());
     }
 
     //test getReplies
 
     @Test
     void getReplies_throw_UnauthorizedException_when_user_is_not_login() {
-        assertThrows(UnauthorizedException.class, () -> replyController.getReplies(1L, 2L));
+        assertThrows(UnauthorizedException.class, () -> replyController.getReplies(1L));
     }
 
 
@@ -162,7 +166,10 @@ public class ReplyControllerTest extends BaseTest {
     void getReplies_return_list_of_reply_info_when_all_ok() {
         auth.setRealUserId(1);
         var user = new User(102L, "32323", "@13123", "!@#231", "@!312312");
+        var user1 = new User(100L, "32323", "@13123", "!@#231", "@!312312");
+
         userRepository.save(user);
+        userRepository.save(user1);
 
 
         var reply1 = new Reply(100L, 10L,100L, 201L, "!23213");
@@ -179,11 +186,10 @@ public class ReplyControllerTest extends BaseTest {
         replyRepository.save(reply5);
 
 
-        var repliesInDb = replyController.getReplies(12L, 102L);
-        assertEquals(repliesInDb.size(), 2);
+        var repliesInDb = replyController.getReplies(12L);
+        assertEquals(repliesInDb.size(), 3);
         for (QReply qReply : repliesInDb) {
             assertEquals(qReply.getCommentId(), 12L);
-            assertEquals(qReply.getUserId(),102L);
         }
 
     }
