@@ -103,4 +103,21 @@ public class ELockController {
         return Quser.convert(owner, modelMapper);
     }
 
+    // TODO: 写测试
+    @PostMapping("release")
+    public void releaseLock(@RequestParam Long documentId) {
+        if (!auth.isLoggedIn()) {
+            throw new UnauthorizedException();
+        }
+
+        var lock = elockRepository.findELockByDocumentId(documentId);
+
+        if (lock == null) {
+            return;
+        }
+
+        lock.tryRelease(auth.userId());
+        elockRepository.save(lock);
+    }
+
 }
