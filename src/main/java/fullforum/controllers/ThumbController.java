@@ -49,7 +49,6 @@ public class ThumbController {
         var user = userRepository.findById(auth.userId()).orElse(null);
         assert user != null;
 
-
         Thumb thumb;
         if (model.targetType == TargetType.Reply) {
             var reply = replyRepository.findById(model.targetId).orElse(null);
@@ -100,7 +99,14 @@ public class ThumbController {
 
     @GetMapping("{id}")
     public Thumb getThumbById(@PathVariable Long id) {
-        throw new NotYetImplementedException();
+        if (!auth.isLoggedIn()) {
+            throw new UnauthorizedException();
+        }
+        var thumb = thumbRepository.findById(id).orElse(null);
+        if (thumb == null) {
+            throw new NotFoundException("点赞记录不存在");
+        }
+        return thumb;
     }
 
 

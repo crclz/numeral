@@ -90,7 +90,7 @@ public class ThumbControllerTest extends BaseTest {
     }
 
     @Test
-    void deleteThumb_throw_NOtFoundException_when_thumb_is_not_log_in() {
+    void deleteThumb_throw_NOtFoundException_when_thumb_is_exist() {
         auth.setRealUserId(1);
         assertThrows(NotFoundException.class, () -> thumbController.deleteThumbUp(9L));
     }
@@ -113,6 +113,31 @@ public class ThumbControllerTest extends BaseTest {
         thumbController.deleteThumbUp(9L);
         var thumbInDb = thumbRepository.findById(9L).orElse(null);
         assertNull(thumbInDb);
+    }
+
+
+    //test getThumbById
+    @Test
+    void getThumbById_throw_UnauthorizedException_when_user_is_not_log_in() {
+        assertThrows(UnauthorizedException.class, () -> thumbController.getThumbById(9L));
+    }
+
+    @Test
+    void getThumbById_throw_NOtFoundException_when_thumb_is_exist() {
+        auth.setRealUserId(1);
+        assertThrows(NotFoundException.class, () -> thumbController.getThumbById(9L));
+    }
+
+    @Test
+    void getThumbById_return_thumb_when_all_ok() {
+        var thumb = new Thumb(9L, 1L, 99L, TargetType.Comment);
+        thumbRepository.save(thumb);
+        auth.setRealUserId(1);
+
+        var thumbInDb = thumbController.getThumbById(9L);
+        assertNotNull(thumbInDb);
+        assertEquals(thumbInDb.getTargetId(), thumb.getTargetId());
+        assertEquals(thumbInDb.getUserId(), thumb.getUserId());
     }
 
 
