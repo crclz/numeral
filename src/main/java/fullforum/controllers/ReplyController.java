@@ -8,11 +8,11 @@ import fullforum.dto.in.CreateReplyModel;
 import fullforum.dto.out.IdDto;
 import fullforum.dto.out.QReply;
 import fullforum.dto.out.Quser;
+import fullforum.errhand.ForbidException;
 import fullforum.errhand.NotFoundException;
 import fullforum.errhand.UnauthorizedException;
 import fullforum.services.IAuth;
 import fullforum.services.Snowflake;
-import org.aspectj.weaver.ast.Not;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -24,6 +24,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Controller
+@RequestMapping("api/reply")
 public class ReplyController {
     @Autowired
     IAuth auth;
@@ -55,7 +56,7 @@ public class ReplyController {
     @Autowired
     MembershipRepository membershipRepository;
 
-    @PostMapping()
+    @PostMapping
     public IdDto createReply(@RequestBody @Valid CreateReplyModel model) {
         if (!auth.isLoggedIn()) {
             throw new UnauthorizedException();
@@ -85,10 +86,15 @@ public class ReplyController {
             throw new UnauthorizedException();
         }
 
+
         var reply = replyRepository.findById(id).orElse(null);
         if (reply == null) {
             throw new NotFoundException("操作失败，回复不存在");
         }
+        if (auth.userId() != reply.getUserId()) {
+            throw new ForbidException("操作失败，你没有权限");
+        }
+
         replyRepository.deleteById(id);
     }
 

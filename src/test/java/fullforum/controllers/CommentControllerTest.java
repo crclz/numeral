@@ -5,7 +5,6 @@ import fullforum.data.models.*;
 import fullforum.data.repos.*;
 import fullforum.dependency.FakeAuth;
 import fullforum.dto.in.CreateCommentModel;
-import fullforum.dto.in.CreateReplyModel;
 import fullforum.errhand.ForbidException;
 import fullforum.errhand.NotFoundException;
 import fullforum.errhand.UnauthorizedException;

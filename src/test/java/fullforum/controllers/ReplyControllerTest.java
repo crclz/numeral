@@ -111,7 +111,7 @@ public class ReplyControllerTest extends BaseTest {
 
     @Test
     void deleteReply_return_ok_and_update_db_when_all_ok() {
-        auth.setRealUserId(1);
+        auth.setRealUserId(100);
         var reply = new Reply(100L, 10L,100L, 200L, "!23213");
         replyRepository.save(reply);
 
@@ -163,6 +163,7 @@ public class ReplyControllerTest extends BaseTest {
         auth.setRealUserId(1);
         var user = new User(102L, "32323", "@13123", "!@#231", "@!312312");
         userRepository.save(user);
+
 
         var reply1 = new Reply(100L, 10L,100L, 201L, "!23213");
         var reply2 = new Reply(101L, 12L,102L, 203L, "!23213");
