@@ -60,14 +60,14 @@ public class ReplyControllerTest extends BaseTest {
     @Test
     void createReply_throw_UnauthorizedException_when_user_is_not_log_in() {
         var model = new CreateReplyModel(10L, 100L, "DSa");
-        assertThrows(UnauthorizedException.class, () -> replyController.createReply(model, 10L));
+        assertThrows(UnauthorizedException.class, () -> replyController.createReply(model));
     }
 
     @Test
     void createReply_throw_NotFoundException_when_comment_is_not_exist() {
         auth.setRealUserId(1);
         var model = new CreateReplyModel(10L, 100L, "DSa");
-        assertThrows(NotFoundException.class, () -> replyController.createReply(model, 10L));
+        assertThrows(NotFoundException.class, () -> replyController.createReply(model));
     }
 
     @Test
@@ -80,7 +80,7 @@ public class ReplyControllerTest extends BaseTest {
         commentRepository.save(comment);
 
         var model = new CreateReplyModel(10L, 100L, "DSa");
-        var rid = replyController.createReply(model, 10L);
+        var rid = replyController.createReply(model);
         assertNotNull(rid);
 
         var replyInDb = replyRepository.findById(rid.id).orElse(null);

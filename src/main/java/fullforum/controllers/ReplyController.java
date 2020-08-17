@@ -56,7 +56,7 @@ public class ReplyController {
     MembershipRepository membershipRepository;
 
     @PostMapping()
-    public IdDto createReply(@RequestBody @Valid CreateReplyModel model, @PathVariable long id) {
+    public IdDto createReply(@RequestBody @Valid CreateReplyModel model) {
         if (!auth.isLoggedIn()) {
             throw new UnauthorizedException();
         }
