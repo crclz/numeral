@@ -191,7 +191,7 @@ public class MessageControllerTest extends BaseTest {
         var messagesInDb = messageController.getMessages(5L, 1L, "dsa", false);
         assertEquals(messagesInDb.size(), 2);
         for (var qMessage : messagesInDb) {
-            assertEquals(qMessage.getSender(), 5L);
+            assertEquals(qMessage.getSender().getId(), 5L);
             assertEquals(qMessage.getReceiverId(), 1L);
             assertThat(qMessage.getTitle()).contains("dsa");
             assertFalse(qMessage.isHaveRead());

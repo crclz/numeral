@@ -152,8 +152,7 @@ public class CommentControllerTest extends BaseTest{
     @Test
     void getCommentById_return_null_when_comment_not_exist() {
         auth.setRealUserId(1);
-        var comment = commentsController.getCommentById(1L);
-        assertThat(comment).isNull();
+        assertThrows(NotFoundException.class, () -> commentsController.getCommentById(2L));
     }
 
     @Test
