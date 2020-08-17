@@ -76,7 +76,7 @@ public class CommentsController {
         boolean havePermission;
         if (auth.userId() == document.getCreatorId()) {
             havePermission = true;
-        } else if (document.getTeamId() != null){ //团队文档
+        } else if (document.getTeamId() != null) { //团队文档
             var membership = membershipRepository.findByUserIdAndTeamId(auth.userId(), document.getTeamId());
             havePermission = (membership != null && document.getTeamCommentAccess().equals(Access.ReadWrite));
         } else { //非团队文档
@@ -90,7 +90,8 @@ public class CommentsController {
             if (auth.userId() != document.getCreatorId()) {//只有来自他人的评论才通知文章作者
                 var message = new Message(snowflake.nextId(), -1L, document.getCreatorId());
                 message.setTitle("新评论通知");
-                message.setContent("你的文章 " + document.getTitle() + " 收到一条新评论");
+                message.setContent("你的文档 " + document.getTitle() + " 收到一条新评论");
+                message.setLink("/readFile/" + document.getId());
                 messageRepository.save(message);
             }
             return new IdDto(comment.getId());
@@ -153,15 +154,15 @@ public class CommentsController {
                 var leaderId = team.getLeaderId();
                 var membership = membershipRepository.findByUserIdAndTeamId(auth.userId(), team.getId());
                 havePermission = (auth.userId() == document.getCreatorId()
-                                || auth.userId() == leaderId
-                                || (membership != null && !document.getTeamCommentAccess().equals(Access.None)));
+                        || auth.userId() == leaderId
+                        || (membership != null && !document.getTeamCommentAccess().equals(Access.None)));
             } else {
                 havePermission = (auth.userId() == document.getCreatorId()
-                                || !document.getPublicCommentAccess().equals(Access.None));
+                        || !document.getPublicCommentAccess().equals(Access.None));
             }
         }
 
-        if (!havePermission){
+        if (!havePermission) {
             throw new ForbidException("操作失败，你没有权限");
         }
 
