@@ -14,8 +14,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
 import javax.transaction.Transactional;
 import javax.validation.Valid;
+import java.util.List;
 
 @Transactional
 @RestController
@@ -102,6 +105,18 @@ public class UsersController {
             return null;
         }
 
+        return Quser.convert(user, modelMapper);
+    }
+
+    @PersistenceContext
+    EntityManager entityManager;
+
+    @GetMapping("find-by-username")
+    public Quser getUsers(@RequestParam String username) {
+        var user = userRepository.findByUsername(username);
+        if (user == null) {
+            return null;
+        }
         return Quser.convert(user, modelMapper);
     }
 }
