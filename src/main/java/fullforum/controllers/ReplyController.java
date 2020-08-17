@@ -1,8 +1,10 @@
 package fullforum.controllers;
 
 
+import fullforum.data.models.Comment;
 import fullforum.data.models.Message;
 import fullforum.data.models.Reply;
+import fullforum.data.models.Thumb;
 import fullforum.data.repos.*;
 import fullforum.dto.in.CreateReplyModel;
 import fullforum.dto.out.IdDto;
@@ -43,6 +45,9 @@ public class ReplyController {
 
     @Autowired
     UserRepository userRepository;
+
+    @Autowired
+    ThumbRepository thumbRepository;
 
     @Autowired
     ReplyRepository replyRepository;
@@ -110,34 +115,38 @@ public class ReplyController {
 
         var user = userRepository.findById(reply.getUserId()).orElse(null);
         assert user != null;
-
         var qUser = Quser.convert(user, mapper);
-        return QReply.convert(reply, qUser, mapper);
+
+        var thumb = thumbRepository.findByUserIdAndTargetId(auth.userId(), reply.getId());
+        return QReply.convert(reply, qUser, mapper, thumb);
     }
 
     @GetMapping()
-    public List<QReply> getReplies(
-            @RequestParam(required = false) Long commentId,
-            @RequestParam(required = false) Long userId
-    ) {
+    public List<QReply> getReplies(@RequestParam(required = false) Long commentId) {
         if (!auth.isLoggedIn()) {
             throw new UnauthorizedException();
         }
         var query = entityManager.createQuery(
-                "select r from Reply r " +
-                    "where (:cid is null or r.commentId = :cid) " +
-                    "and (:uid is null or r.userId = :uid)")
-                .setParameter("cid", commentId)
-                .setParameter("uid", userId);
+                "select r, t from Reply r left join Thumb t " +
+                    "on (r.userId = t.userId and r.id = t.targetId) " +
+                    "where (:cid is null or r.commentId = :cid) ")
+                .setParameter("cid", commentId);
         var results = query.getResultList();
         var replies = new ArrayList<QReply>();
         for (Object result : results) {
-            var reply = (Reply) result;
+            var objs = (Object[])result;
+            var reply = (Reply) (objs)[0];
+            Thumb thumb;
+            if (objs[1] != null) {
+                thumb = (Thumb)objs[1];
+            } else {
+                thumb = null;
+            }
             var user = userRepository.findById(reply.getUserId()).orElse(null);
             assert user != null;
             var qUser = Quser.convert(user, mapper);
 
-            replies.add(QReply.convert(reply, qUser, mapper));
+            replies.add(QReply.convert(reply, qUser, mapper, thumb));
         }
 
         return replies;

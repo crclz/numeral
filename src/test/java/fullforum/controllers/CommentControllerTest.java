@@ -31,6 +31,9 @@ public class CommentControllerTest extends BaseTest{
     TeamRepository teamRepository;
 
     @Autowired
+    ThumbRepository thumbRepository;
+
+    @Autowired
     ReplyRepository replyRepository;
 
     @Autowired
@@ -162,14 +165,19 @@ public class CommentControllerTest extends BaseTest{
         documentRepository.save(document);
         var model = new CreateCommentModel(2L, "hahaha");
 
+
         var cid = commentsController.createComment(model);
         assertNotNull(cid);
+
+        var thumb = new Thumb(99, 1, cid.id, TargetType.Comment);
+        thumbRepository.save(thumb);
 
         var qComment = commentsController.getCommentById(cid.id);
         assertNotNull(qComment);
         assertEquals(qComment.getContent(), model.content);
         assertEquals(qComment.getDocumentId(), model.documentId);
         assertEquals(qComment.getUserId(), auth.userId());
+        assertNotNull(qComment.getMyThumb());
 
 
     }

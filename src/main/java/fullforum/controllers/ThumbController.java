@@ -96,6 +96,21 @@ public class ThumbController {
         if (auth.userId() != thumb.getUserId()) {
             throw new ForbidException("你没有权限");
         }
+        if (thumb.getType().equals(TargetType.Comment)) {
+            var comment = commentRepository.findById(thumb.getTargetId()).orElse(null);
+            if (comment == null) {
+                throw new NotFoundException("评论不存在");
+            }
+            comment.cancelThumbUp();
+            commentRepository.save(comment);
+        } else {
+            var reply = replyRepository.findById(thumb.getTargetId()).orElse(null);
+            if (reply == null) {
+                throw new NotFoundException("回复不存在");
+            }
+            reply.cancelThumbUp();
+            replyRepository.save(reply);
+        }
         thumbRepository.deleteById(id);
     }
 

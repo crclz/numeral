@@ -1,6 +1,7 @@
 package fullforum.dto.out;
 
 import fullforum.data.models.Reply;
+import fullforum.data.models.Thumb;
 import lombok.Data;
 import org.modelmapper.ModelMapper;
 
@@ -16,9 +17,12 @@ public class QReply extends BaseQDto {
 
     private Quser user;
 
-    public static QReply convert(Reply reply, Quser user, ModelMapper mapper) {
+    private Thumb myThumb;
+
+    public static QReply convert(Reply reply, Quser user, ModelMapper mapper, Thumb myThumb) {
         var qReply = mapper.map(reply, QReply.class);
         qReply.setUser(user);
+        qReply.setMyThumb(myThumb);
         return qReply;
     }
 

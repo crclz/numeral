@@ -3,6 +3,7 @@ package fullforum.controllers;
 import fullforum.data.models.Access;
 import fullforum.data.models.Comment;
 import fullforum.data.models.Message;
+import fullforum.data.models.Thumb;
 import fullforum.data.repos.*;
 import fullforum.dto.in.CreateCommentModel;
 import fullforum.dto.out.IdDto;
@@ -49,6 +50,9 @@ public class CommentsController {
 
     @Autowired
     ReplyRepository replyRepository;
+
+    @Autowired
+    ThumbRepository thumbRepository;
 
     @Autowired
     DocumentRepository documentRepository;
@@ -130,7 +134,9 @@ public class CommentsController {
             throw new NotFoundException("评论不存在");
         }
         var qUser = Quser.convert(userRepository.findById(comment.getUserId()).orElse(null), mapper);
-        return QComment.convert(comment, qUser, mapper);
+        var thumb = thumbRepository.findByUserIdAndTargetId(auth.userId(), comment.getId());
+
+        return QComment.convert(comment, qUser, mapper, thumb);
     }
 
     @GetMapping
@@ -167,11 +173,11 @@ public class CommentsController {
             throw new ForbidException("操作失败，你没有权限");
         }
 
-
         List<QComment> comments = new ArrayList<>();
 
         var query = entityManager.createQuery(
-                "select c from Comment c" +
+                "select c, t from Comment c left join Thumb t " +
+                        " on (c.userId = t.userId and c.id = t.targetId)" +
                         " where (:documentId is null or c.documentId = :documentId)" +
                         " and (:userId is null or c.userId = :userId)")
                 .setParameter("documentId", documentId)
@@ -180,9 +186,16 @@ public class CommentsController {
         var results = query.getResultList();
 
         for (var result : results) {
-            var comment = (Comment) result;
+            var objs = (Object[])result;
+            var comment = (Comment) (objs)[0];
+            Thumb thumb;
+            if (objs[1] != null) {
+                thumb = (Thumb)objs[1];
+            } else {
+                thumb = null;
+            }
             var qUser = Quser.convert(userRepository.findById(comment.getUserId()).orElse(null), mapper);
-            comments.add(QComment.convert(comment, qUser, mapper));
+            comments.add(QComment.convert(comment, qUser, mapper, thumb));
         }
         return comments;
     }

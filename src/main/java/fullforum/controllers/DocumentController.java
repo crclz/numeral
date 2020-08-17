@@ -225,9 +225,11 @@ public class DocumentController {
             if (membership == null) {
                 throw new ForbidException("操作失败，你不在团队中");
             }
+
             if (document.getTeamDocumentAccess().equals(Access.None)) {
                 throw new ForbidException("操作失败，你没有权限");
             }
+
             viewRecordRepository.save(viewRecord);
             return QDocument.convert(document, modelMapper);
         } else {
@@ -302,6 +304,7 @@ public class DocumentController {
                     .setParameter("teamId", teamId);
             results = query.getResultList();
         }
+
         for (var result : results) {
             var document = (Document) result;
             if (auth.userId() != document.getCreatorId()) {//非文档创建者
