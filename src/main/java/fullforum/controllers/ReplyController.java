@@ -18,15 +18,19 @@ import fullforum.services.Snowflake;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import javax.persistence.EntityManager;
+import javax.transaction.Transactional;
 import javax.validation.Valid;
 import java.util.ArrayList;
 import java.util.List;
 
-@Controller
-@RequestMapping("api/reply")
+@Transactional
+@RestController
+@RequestMapping("/api/replies")
+@Validated
 public class ReplyController {
     @Autowired
     IAuth auth;

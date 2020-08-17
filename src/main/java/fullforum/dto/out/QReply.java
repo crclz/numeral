@@ -13,6 +13,8 @@ public class QReply extends BaseQDto {
 
     private long targetUserId;
 
+    private int thumbCount;
+
     private String content;
 
     private Quser user;

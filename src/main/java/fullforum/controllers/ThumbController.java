@@ -6,20 +6,23 @@ import fullforum.data.models.Thumb;
 import fullforum.data.repos.*;
 import fullforum.dto.in.CreatThumbUpModel;
 import fullforum.dto.out.IdDto;
-import fullforum.errhand.ForbidException;
-import fullforum.errhand.NotFoundException;
-import fullforum.errhand.UnauthorizedException;
+import fullforum.errhand.*;
 import fullforum.services.IAuth;
 import fullforum.services.Snowflake;
 import org.hibernate.cfg.NotYetImplementedException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
+import javax.transaction.Transactional;
+import javax.validation.Valid;
 import java.util.List;
 
-@Controller
-@RequestMapping("api/thumb")
+@Transactional
+@RestController
+@RequestMapping("/api/thumbs")
+@Validated// PathVariable and params auto validation
 public class ThumbController {
     @Autowired
     IAuth auth;
@@ -44,12 +47,18 @@ public class ThumbController {
 
 
     @PostMapping
-    public IdDto giveThumbUp(@RequestBody CreatThumbUpModel model) {
+    public IdDto giveThumbUp(@RequestBody @Valid CreatThumbUpModel model) {
         if (!auth.isLoggedIn()) {
             throw new UnauthorizedException();
         }
         var user = userRepository.findById(auth.userId()).orElse(null);
         assert user != null;
+
+        var existedThumb = thumbRepository
+                .findByUserIdAndTargetIdAndType(auth.userId(), model.targetId, model.targetType);
+        if (existedThumb != null) {
+            throw new BadRequestException(ErrorCode.UniqueViolation, "点赞已存在");
+        }
 
         Thumb thumb;
         if (model.targetType == TargetType.Reply) {
@@ -127,7 +136,6 @@ public class ThumbController {
     }
 
 //    public List<Thumb> getThumbs
-
 
 
 }
