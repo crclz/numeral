@@ -114,7 +114,7 @@ public class TeamsController {
         message.setContent(sender.getUsername() + " 邀请你加入团队 " + team.getName());
 
         // TODO: set link
-//        message.setLink(model.link);
+        message.setLink("/team/" + team.getId());
 
         messageRepository.save(message);
     }
