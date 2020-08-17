@@ -10,7 +10,6 @@ import fullforum.data.repos.ReplyRepository;
 import fullforum.data.repos.ThumbRepository;
 import fullforum.data.repos.UserRepository;
 import fullforum.dependency.FakeAuth;
-
 import fullforum.dto.in.CreatThumbUpModel;
 import fullforum.errhand.ForbidException;
 import fullforum.errhand.NotFoundException;
@@ -18,7 +17,6 @@ import fullforum.errhand.UnauthorizedException;
 import fullforum.services.Snowflake;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.RequestMapping;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -76,9 +74,12 @@ public class ThumbControllerTest extends BaseTest {
         var tid = thumbController.giveThumbUp(model);
 
         var thumbInDb = thumbRepository.findById(tid.id).orElse(null);
+        var commentInDb = commentRepository.findById(comment.getId()).orElse(null);
+        assertNotNull(commentInDb);
         assertNotNull(thumbInDb);
         assertEquals(thumbInDb.getUserId(), auth.userId());
         assertEquals(thumbInDb.getTargetId(), model.targetId);
+        assertEquals(commentInDb.getThumbCount(), 1);
 
     }
 
@@ -108,11 +109,17 @@ public class ThumbControllerTest extends BaseTest {
     void deleteThumb_return_ok_and_update_db_when_all_ok() {
         var thumb = new Thumb(9L, 1L, 99L, TargetType.Comment);
         thumbRepository.save(thumb);
+        var comment = new Comment(99L, 999, 888, "Dsadad");
+        comment.setThumbCount(10);
+        commentRepository.save(comment);
 
         auth.setRealUserId(1);
         thumbController.deleteThumbUp(9L);
         var thumbInDb = thumbRepository.findById(9L).orElse(null);
+        var commentInDb = commentRepository.findById(comment.getId()).orElse(null);
         assertNull(thumbInDb);
+        assertNotNull(commentInDb);
+        assertEquals(commentInDb.getThumbCount(), 9);
     }
 
 
