@@ -48,6 +48,9 @@ public class CommentsController {
     UserRepository userRepository;
 
     @Autowired
+    ReplyRepository replyRepository;
+
+    @Autowired
     DocumentRepository documentRepository;
 
     @Autowired
@@ -108,6 +111,9 @@ public class CommentsController {
         if (comment.getUserId() != auth.userId()) {
             throw new ForbidException("操作失败，你没有权限");
         }
+
+        replyRepository.deleteAllByCommentId(id);
+
         commentRepository.deleteById(id);
     }
 
@@ -119,7 +125,7 @@ public class CommentsController {
 
         var comment = commentRepository.findById(id).orElse(null);
         if (comment == null) {
-            return null;
+            throw new NotFoundException("评论不存在");
         }
         var qUser = Quser.convert(userRepository.findById(comment.getUserId()).orElse(null), mapper);
         return QComment.convert(comment, qUser, mapper);
@@ -178,4 +184,6 @@ public class CommentsController {
         }
         return comments;
     }
+
+
 }
