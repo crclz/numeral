@@ -67,64 +67,64 @@ public class TeamControllerTest extends BaseTest {
     }
 
     //test createTeamInvitation
-
-    @Test
-    void creatTeamInvitation_throw_UnauthorizedException_when_user_is_not_log_in() {
-        var model = new CreateMessageModel(-1L, 3L, "dass", "Dasdsa", "dass");
-        assertThrows(UnauthorizedException.class, () -> teamsController.creatTeamInvitation(999L, model));
-    }
-
-    @Test
-    void creatTeamInvitation_throw_NotFoundException_when_user_or_team_is_not_exist() {
-        auth.setRealUserId(1);
-        var model = new CreateMessageModel(-1L, 3L, "dass", "Dasdsa", "dass");
-        assertThrows(NotFoundException.class, () -> teamsController.creatTeamInvitation(999L, model));
-
-        var team = new Team(999L, 44L, "Dasd", "adas");
-        teamRepository.save(team);
-
-        var membership = new Membership(222L, 999L, 1L);
-        membershipRepository.save(membership);
-        assertThrows(NotFoundException.class, () -> teamsController.creatTeamInvitation(999L, model));
-
-
-    }
-
-    @Test
-    void creatTeamInvitation_throw_ForbidException_when_user_is_in_team() {
-        auth.setRealUserId(1);
-        var team = new Team(999L, 44L, "Dasd", "adas");
-        teamRepository.save(team);
-        var model = new CreateMessageModel(-1L, 3L, "dass", "Dasdsa", "dass");
-        assertThrows(ForbidException.class, () -> teamsController.creatTeamInvitation(999L, model));
-    }
-
-    @Test
-    void creatTeamInvitation_return_ok_and_send_message_to_receiver_when_all_ok() {
-        auth.setRealUserId(111);
-
-        var team = new Team(999L, 44L, "Dasd", "adas");
-        teamRepository.save(team);
-
-        var membership = new Membership(222L, 999L, 111L);
-        membershipRepository.save(membership);
-
-        var receiver = new User(333L, "Dasdad", "dsadsadsad", "dasdsa", "Dasdsada");
-        var sender = new User(111L, "dasdsa", "Dassad", "Dassa", "DSaa");
-        userRepository.save(receiver);
-        userRepository.save(sender);
-
-        var model = new CreateMessageModel(-1L, 333L, "dass", "Dasdsa", "dass");
-        teamsController.creatTeamInvitation(999L, model);
-
-        var messages = messageRepository.findAllByReceiverId(333L);
-        assertThat(messages.size()).isNotZero();
-
-        for (var message : messages) {
-            assertEquals(message.getSenderId(), auth.userId());
-            assertEquals(message.getTitle(), "团队邀请通知");
-        }
-    }
+    // TODO: test
+//    @Test
+//    void creatTeamInvitation_throw_UnauthorizedException_when_user_is_not_log_in() {
+//        var model = new CreateMessageModel(-1L, 3L, "dass", "Dasdsa", "dass");
+//        assertThrows(UnauthorizedException.class, () -> teamsController.creatTeamInvitation(999L, model));
+//    }
+//
+//    @Test
+//    void creatTeamInvitation_throw_NotFoundException_when_user_or_team_is_not_exist() {
+//        auth.setRealUserId(1);
+//        var model = new CreateMessageModel(-1L, 3L, "dass", "Dasdsa", "dass");
+//        assertThrows(NotFoundException.class, () -> teamsController.creatTeamInvitation(999L, model));
+//
+//        var team = new Team(999L, 44L, "Dasd", "adas");
+//        teamRepository.save(team);
+//
+//        var membership = new Membership(222L, 999L, 1L);
+//        membershipRepository.save(membership);
+//        assertThrows(NotFoundException.class, () -> teamsController.creatTeamInvitation(999L, model));
+//
+//
+//    }
+//
+//    @Test
+//    void creatTeamInvitation_throw_ForbidException_when_user_is_in_team() {
+//        auth.setRealUserId(1);
+//        var team = new Team(999L, 44L, "Dasd", "adas");
+//        teamRepository.save(team);
+//        var model = new CreateMessageModel(-1L, 3L, "dass", "Dasdsa", "dass");
+//        assertThrows(ForbidException.class, () -> teamsController.creatTeamInvitation(999L, model));
+//    }
+//
+//    @Test
+//    void creatTeamInvitation_return_ok_and_send_message_to_receiver_when_all_ok() {
+//        auth.setRealUserId(111);
+//
+//        var team = new Team(999L, 44L, "Dasd", "adas");
+//        teamRepository.save(team);
+//
+//        var membership = new Membership(222L, 999L, 111L);
+//        membershipRepository.save(membership);
+//
+//        var receiver = new User(333L, "Dasdad", "dsadsadsad", "dasdsa", "Dasdsada");
+//        var sender = new User(111L, "dasdsa", "Dassad", "Dassa", "DSaa");
+//        userRepository.save(receiver);
+//        userRepository.save(sender);
+//
+//        var model = new CreateMessageModel(-1L, 333L, "dass", "Dasdsa", "dass");
+//        teamsController.creatTeamInvitation(999L, model);
+//
+//        var messages = messageRepository.findAllByReceiverId(333L);
+//        assertThat(messages.size()).isNotZero();
+//
+//        for (var message : messages) {
+//            assertEquals(message.getSenderId(), auth.userId());
+//            assertEquals(message.getTitle(), "团队邀请通知");
+//        }
+//    }
 
 
     //test patchTeam

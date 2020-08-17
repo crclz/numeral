@@ -80,33 +80,42 @@ public class TeamsController {
         return new IdDto(team.getId());
     }
 
-    @PostMapping("{id}")
-    public void creatTeamInvitation(@PathVariable Long id, @RequestBody @Valid CreateMessageModel model) {
-        if(!auth.isLoggedIn()) {
+    @PostMapping("invite")
+    public void creatTeamInvitation(@RequestParam Long teamId, @RequestParam Long receiverId) {
+        if (!auth.isLoggedIn()) {
             throw new UnauthorizedException();
         }
 
-        var team = teamRepository.findById(id).orElse(null);
+        var team = teamRepository.findById(teamId).orElse(null);
         if (team == null) {
             throw new NotFoundException("团队不存在");
         }
-        var membership = membershipRepository.findByUserIdAndTeamId(auth.userId(), id);
+        var membership = membershipRepository.findByUserIdAndTeamId(auth.userId(), teamId);
         if (membership == null) {
             throw new ForbidException("操作失败，你不在该团队中");
         }
 
-        var receiver = userRepository.findById(model.receiverId).orElse(null);
+        var receiver = userRepository.findById(receiverId).orElse(null);
         if (receiver == null) {
             throw new NotFoundException("该用户不存在");
+        }
+
+        // 用户不应该在团队中
+        var receiverMembership = membershipRepository.findByUserIdAndTeamId(receiverId, teamId);
+        if (receiverMembership != null) {
+            throw new ForbidException("目标用户已经在团队中了");
         }
 
         var sender = userRepository.findById(auth.userId()).orElse(null);
         assert sender != null;
 
-        var message = new Message(snowflake.nextId(), auth.userId(), model.receiverId);
+        var message = new Message(snowflake.nextId(), auth.userId(), receiverId);
         message.setTitle("团队邀请通知");
-        message.setContent(sender.getUsername() + " 邀请你加入团队 " + team.getName() + " 点击链接加入: " + model.getLink());
-        message.setLink(model.link);
+        message.setContent(sender.getUsername() + " 邀请你加入团队 " + team.getName());
+
+        // TODO: set link
+//        message.setLink(model.link);
+
         messageRepository.save(message);
     }
 
@@ -192,12 +201,6 @@ public class TeamsController {
         }
         return qTeams;
     }
-
-
-
-
-
-
 
 
 }
