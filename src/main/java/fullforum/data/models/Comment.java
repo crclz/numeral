@@ -21,7 +21,7 @@ public class Comment extends RootEntity {
 
     @Getter
     @Setter
-    private int thumbCount = 0;
+    private long thumbCount = 0;
 
     protected Comment() {
 

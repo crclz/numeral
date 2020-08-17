@@ -12,7 +12,6 @@ import fullforum.errhand.NotFoundException;
 import fullforum.errhand.UnauthorizedException;
 import fullforum.services.IAuth;
 import fullforum.services.Snowflake;
-import org.aspectj.weaver.ast.Not;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -24,6 +23,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Controller
+@RequestMapping("api/reply")
 public class ReplyController {
     @Autowired
     IAuth auth;
@@ -55,7 +55,7 @@ public class ReplyController {
     @Autowired
     MembershipRepository membershipRepository;
 
-    @PostMapping()
+    @PostMapping
     public IdDto createReply(@RequestBody @Valid CreateReplyModel model) {
         if (!auth.isLoggedIn()) {
             throw new UnauthorizedException();
