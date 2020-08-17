@@ -2,12 +2,10 @@ package fullforum.controllers;
 
 import fullforum.BaseTest;
 import fullforum.data.models.*;
-import fullforum.data.repos.CommentRepository;
-import fullforum.data.repos.DocumentRepository;
-import fullforum.data.repos.MembershipRepository;
-import fullforum.data.repos.TeamRepository;
+import fullforum.data.repos.*;
 import fullforum.dependency.FakeAuth;
 import fullforum.dto.in.CreateCommentModel;
+import fullforum.dto.in.CreateReplyModel;
 import fullforum.errhand.ForbidException;
 import fullforum.errhand.NotFoundException;
 import fullforum.errhand.UnauthorizedException;
@@ -28,7 +26,13 @@ public class CommentControllerTest extends BaseTest{
     DocumentRepository documentRepository;
 
     @Autowired
+    UserRepository userRepository;
+
+    @Autowired
     TeamRepository teamRepository;
+
+    @Autowired
+    ReplyRepository replyRepository;
 
     @Autowired
     MembershipRepository membershipRepository;
@@ -95,7 +99,12 @@ public class CommentControllerTest extends BaseTest{
     }
 
 
-    //test removeFavorite
+
+
+
+
+
+    //test removeComment
 
     @Test
     void removeComment_throw_UnauthorizedException_when_user_is_not_login() {
@@ -103,7 +112,7 @@ public class CommentControllerTest extends BaseTest{
     }
 
     @Test
-    void removeComment_throw_NotFoundException_when_favorite_is_not_exist() {
+    void removeComment_throw_NotFoundException_when_comment_is_not_exist() {
         auth.setRealUserId(1);
         assertThrows(NotFoundException.class, () -> commentsController.removeComment(1L));
     }
@@ -143,8 +152,7 @@ public class CommentControllerTest extends BaseTest{
     @Test
     void getCommentById_return_null_when_comment_not_exist() {
         auth.setRealUserId(1);
-        var comment = commentsController.getCommentById(1L);
-        assertThat(comment).isNull();
+        assertThrows(NotFoundException.class, () -> commentsController.getCommentById(2L));
     }
 
     @Test
