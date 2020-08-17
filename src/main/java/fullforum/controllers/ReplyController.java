@@ -8,6 +8,7 @@ import fullforum.dto.in.CreateReplyModel;
 import fullforum.dto.out.IdDto;
 import fullforum.dto.out.QReply;
 import fullforum.dto.out.Quser;
+import fullforum.errhand.ForbidException;
 import fullforum.errhand.NotFoundException;
 import fullforum.errhand.UnauthorizedException;
 import fullforum.services.IAuth;
@@ -85,10 +86,15 @@ public class ReplyController {
             throw new UnauthorizedException();
         }
 
+
         var reply = replyRepository.findById(id).orElse(null);
         if (reply == null) {
             throw new NotFoundException("操作失败，回复不存在");
         }
+        if (auth.userId() != reply.getUserId()) {
+            throw new ForbidException("操作失败，你没有权限");
+        }
+
         replyRepository.deleteById(id);
     }
 

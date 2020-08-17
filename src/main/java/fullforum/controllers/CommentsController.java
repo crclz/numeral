@@ -108,13 +108,14 @@ public class CommentsController {
         if (comment == null) {
             throw new NotFoundException("评论不存在");
         }
-        if (comment.getUserId() != auth.userId()) {
+        var document = documentRepository.findById(comment.getDocumentId()).orElse(null);
+        assert document != null;
+        if (comment.getUserId() != auth.userId() && document.getCreatorId() != auth.userId()) {
             throw new ForbidException("操作失败，你没有权限");
         }
 
-        replyRepository.deleteAllByCommentId(id);
-
         commentRepository.deleteById(id);
+        replyRepository.deleteAllByCommentId(id);
     }
 
     @GetMapping("{id}")

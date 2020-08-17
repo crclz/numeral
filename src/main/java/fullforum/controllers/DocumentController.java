@@ -56,6 +56,9 @@ public class DocumentController {
     UserRepository userRepository;
 
     @Autowired
+    ReplyRepository replyRepository;
+
+    @Autowired
     MembershipRepository membershipRepository;
 
     @Autowired
@@ -188,6 +191,7 @@ public class DocumentController {
         var comments = commentRepository.findAllByDocumentId(id);
         for (Comment comment : comments) {
             commentRepository.deleteById(comment.getId());
+            replyRepository.deleteAllByCommentId(comment.getId());
         }
 
         documentRepository.deleteById(id);
