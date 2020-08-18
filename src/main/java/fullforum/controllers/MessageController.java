@@ -2,6 +2,7 @@ package fullforum.controllers;
 
 import fullforum.data.models.Message;
 import fullforum.data.repos.*;
+import fullforum.dto.in.BatchMarkReadModel;
 import fullforum.dto.in.CreateMessageModel;
 import fullforum.dto.out.IdDto;
 import fullforum.dto.out.QMessage;
@@ -18,6 +19,7 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.persistence.EntityManager;
 import javax.transaction.Transactional;
+import javax.validation.Valid;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -88,11 +90,11 @@ public class MessageController {
     }
 
     @PostMapping("batch-mark-read")
-    public void batchMarkRead(@RequestParam List<Long> ids) {
+    public void batchMarkRead(@RequestBody @Valid BatchMarkReadModel model) {
         if (!auth.isLoggedIn()) {
             throw new UnauthorizedException();
         }
-        for (var id : ids) {
+        for (var id : model.ids) {
             var message = messageRepository.findById(id).orElse(null);
             if (message == null) {
                 throw new NotFoundException("消息不存在");
@@ -104,7 +106,6 @@ public class MessageController {
             messageRepository.save(message);
         }
     }
-
 
 
     @PatchMapping()//设置用户当前所有消息为已读
@@ -155,14 +156,14 @@ public class MessageController {
         }
         var query = entityManager.createQuery(
                 "select m from Message m" +
-                    " where (:senderId is null or m.senderId = :senderId)" +
-                    " and (:receiverId is null or m.receiverId = :receiverId)" +
-                    " and (:titleKeyword is null or m.title like :titleExpr)" +
-                    " and (:haveRead is null or m.haveRead = :haveRead)")
+                        " where (:senderId is null or m.senderId = :senderId)" +
+                        " and (:receiverId is null or m.receiverId = :receiverId)" +
+                        " and (:titleKeyword is null or m.title like :titleExpr)" +
+                        " and (:haveRead is null or m.haveRead = :haveRead)")
                 .setParameter("senderId", senderId)
                 .setParameter("receiverId", receiverId)
                 .setParameter("titleKeyword", titleKeyword)
-                .setParameter("titleExpr","%" + titleKeyword + "%")
+                .setParameter("titleExpr", "%" + titleKeyword + "%")
                 .setParameter("haveRead", haveRead);
 
         var results = query.getResultList();
@@ -183,10 +184,6 @@ public class MessageController {
         }
         return qMessages;
     }
-
-
-
-
 
 
 }

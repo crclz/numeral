@@ -8,6 +8,7 @@ import fullforum.data.repos.MessageRepository;
 import fullforum.data.repos.TeamRepository;
 import fullforum.data.repos.UserRepository;
 import fullforum.dependency.FakeAuth;
+import fullforum.dto.in.BatchMarkReadModel;
 import fullforum.dto.in.CreateMessageModel;
 import fullforum.errhand.ForbidException;
 import fullforum.errhand.NotFoundException;
@@ -80,7 +81,7 @@ public class MessageControllerTest extends BaseTest {
     //test deleteMessage
 
     @Test
-    void deleteMessage_throw_UnauthorizedException_when_user_is_not_log_in(){
+    void deleteMessage_throw_UnauthorizedException_when_user_is_not_log_in() {
         assertThrows(UnauthorizedException.class, () -> messageController.deleteMessage(2L));
     }
 
@@ -113,7 +114,7 @@ public class MessageControllerTest extends BaseTest {
 
         var ids = new ArrayList<Long>();
         ids.add(2L);
-        assertThrows(NotFoundException.class, () -> messageController.batchMarkRead(ids));
+        assertThrows(NotFoundException.class, () -> messageController.batchMarkRead(new BatchMarkReadModel(ids)));
     }
 
     @Test
@@ -124,7 +125,7 @@ public class MessageControllerTest extends BaseTest {
 
         var ids = new ArrayList<Long>();
         ids.add(11L);
-        assertThrows(ForbidException.class, () -> messageController.batchMarkRead(ids));
+        assertThrows(ForbidException.class, () -> messageController.batchMarkRead(new BatchMarkReadModel(ids)));
     }
 
 
@@ -140,7 +141,7 @@ public class MessageControllerTest extends BaseTest {
         var ids = new ArrayList<Long>();
         ids.add(11L);
         ids.add(12L);
-        messageController.batchMarkRead(ids);
+        messageController.batchMarkRead(new BatchMarkReadModel(ids));
 
         for (var id : ids) {
             var messageInDb = messageRepository.findById(id).orElse(null);
@@ -148,7 +149,6 @@ public class MessageControllerTest extends BaseTest {
             assertTrue(messageInDb.getHaveRead());
         }
     }
-
 
 
     //test readAllMessage
@@ -251,7 +251,6 @@ public class MessageControllerTest extends BaseTest {
 
 
     }
-
 
 
 }
