@@ -70,11 +70,12 @@ public class ThumbController {
             thumbRepository.save(thumb);
             reply.thumbUp();
             replyRepository.save(reply);
-
-            var message = new Message(snowflake.nextId(), auth.userId(), reply.getUserId());
-            message.setTitle("收到点赞通知");
-            message.setContent(user.getUsername() + " 赞了你的回复");
-            messageRepository.save(message);
+            if (thumb.getUserId() != reply.getUserId()) {
+                var message = new Message(snowflake.nextId(), auth.userId(), reply.getUserId());
+                message.setTitle("收到点赞通知");
+                message.setContent(user.getUsername() + " 赞了你的回复");
+                messageRepository.save(message);
+            }
         } else {
             var comment = commentRepository.findById(model.targetId).orElse(null);
             if (comment == null) {
@@ -84,10 +85,12 @@ public class ThumbController {
             thumbRepository.save(thumb);
             comment.thumbUp();
             commentRepository.save(comment);
-            var message = new Message(snowflake.nextId(), auth.userId(), comment.getUserId());
-            message.setTitle("收到点赞通知");
-            message.setContent(user.getUsername() + " 赞了你的评论");
-            messageRepository.save(message);
+            if (thumb.getUserId() != comment.getUserId()) {
+                var message = new Message(snowflake.nextId(), auth.userId(), comment.getUserId());
+                message.setTitle("收到点赞通知");
+                message.setContent(user.getUsername() + " 赞了你的评论");
+                messageRepository.save(message);
+            }
         }
         return new IdDto(thumb.getId());
     }
