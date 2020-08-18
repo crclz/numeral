@@ -85,6 +85,14 @@ public class TeamRequestsController {
 
         var teamRequest = new TeamRequest(snowflake.nextId(), auth.userId(), model.teamId);
         teamRequestRepository.save(teamRequest);
+
+        // 给组长发送消息通知
+        var message = new Message(snowflake.nextId(), -1L, team.getLeaderId());
+        message.setTitle("有新的团队申请");
+        message.setContent("你的小组 " + team.getName() + " 有新的成员申请");
+        message.setLink("/team/" + team.getId());
+        messageRepository.save(message);
+
         return new IdDto(teamRequest.getId());
     }
 
