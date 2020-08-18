@@ -10,10 +10,7 @@ import fullforum.dto.in.CreateTeamModel;
 import fullforum.dto.in.PatchTeamModel;
 import fullforum.dto.out.IdDto;
 import fullforum.dto.out.QTeam;
-import fullforum.errhand.BadRequestException;
-import fullforum.errhand.ForbidException;
-import fullforum.errhand.NotFoundException;
-import fullforum.errhand.UnauthorizedException;
+import fullforum.errhand.*;
 import fullforum.services.IAuth;
 import fullforum.services.Snowflake;
 import org.hibernate.cfg.NotYetImplementedException;
@@ -66,6 +63,12 @@ public class TeamsController {
         if (!auth.isLoggedIn()) {
             throw new UnauthorizedException();
         }
+
+        var teamInDb = teamRepository.findByName(model.name);
+        if (teamInDb != null) {
+            throw new BadRequestException(ErrorCode.UniqueViolation, "该名称已被使用");
+        }
+
         var team = new Team(snowflake.nextId(), auth.userId(), model.name, model.description);
         teamRepository.save(team);
 

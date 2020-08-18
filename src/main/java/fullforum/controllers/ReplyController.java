@@ -17,7 +17,6 @@ import fullforum.services.IAuth;
 import fullforum.services.Snowflake;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Controller;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
@@ -79,12 +78,15 @@ public class ReplyController {
         var reply = new Reply(snowflake.nextId(), comment.getId(), auth.userId(), model.targetUserId, model.content);
         replyRepository.save(reply);
 
-        var sender = userRepository.findById(auth.userId()).orElse(null);
-        assert sender != null;
-        var message = new Message(snowflake.nextId(), auth.userId(), reply.getTargetUserId());
-        message.setTitle("评论回复通知");
-        message.setContent(sender.getUsername() + " 回复了你的评论");
-        messageRepository.save(message);
+        if (auth.userId() != model.targetUserId) {//只有来自他人的回复才通知评论/回复作者
+            var sender = userRepository.findById(auth.userId()).orElse(null);
+            assert sender != null;
+            var message = new Message(snowflake.nextId(), auth.userId(), reply.getTargetUserId());
+            message.setTitle("评论回复通知");
+            message.setContent(sender.getUsername() + " 回复了你");
+            messageRepository.save(message);
+        }
+
 
         return new IdDto(reply.getId());
     }
@@ -94,7 +96,6 @@ public class ReplyController {
         if (!auth.isLoggedIn()) {
             throw new UnauthorizedException();
         }
-
 
         var reply = replyRepository.findById(id).orElse(null);
         if (reply == null) {

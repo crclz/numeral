@@ -8,6 +8,7 @@ import fullforum.dto.in.CreateMessageModel;
 import fullforum.dto.in.CreateTeamModel;
 import fullforum.dto.in.PatchTeamModel;
 import fullforum.dto.out.QTeam;
+import fullforum.errhand.BadRequestException;
 import fullforum.errhand.ForbidException;
 import fullforum.errhand.NotFoundException;
 import fullforum.errhand.UnauthorizedException;
@@ -48,6 +49,16 @@ public class TeamControllerTest extends BaseTest {
     void creatTeam_throw_UnauthorizedException_when_user_is_not_log_in() {
         var model = new CreateTeamModel("haha", "hahaha");
         assertThrows(UnauthorizedException.class, () -> teamsController.createTeam(model));
+    }
+
+    @Test
+    void creatTeam_throw_BadRequestException_when_team_name_is_already_exist() {
+        auth.setRealUserId(1);
+        var teamEntity = new Team(12313L, 2222L, "haha", "!@#131");
+        teamRepository.save(teamEntity);
+
+        var model = new CreateTeamModel("haha", "hahaha");
+        assertThrows(BadRequestException.class, () -> teamsController.createTeam(model));
     }
 
 

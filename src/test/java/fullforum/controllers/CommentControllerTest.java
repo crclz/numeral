@@ -274,6 +274,8 @@ public class CommentControllerTest extends BaseTest{
 
         var docId1 = 2L;
         var userId = 1L;
+        var thumb = new Thumb(99, 1, 100L, TargetType.Comment);
+        thumbRepository.save(thumb);
 
         var comments1 = commentsController.getComments(docId1, userId);
 
@@ -282,6 +284,8 @@ public class CommentControllerTest extends BaseTest{
         for (var comment : comments1) {
             assertEquals(comment.getUserId(), userId);
             assertEquals(comment.getDocumentId(), docId1);
+            assertNotNull(comment.getMyThumb());
+
         }
         var docId2 = document2.getId();
         var comments2 = commentsController.getComments(docId2, null);

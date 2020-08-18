@@ -11,7 +11,6 @@ import fullforum.errhand.NotFoundException;
 import fullforum.errhand.UnauthorizedException;
 import fullforum.services.IAuth;
 import fullforum.services.Snowflake;
-import org.hibernate.cfg.NotYetImplementedException;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.annotation.Validated;
@@ -86,6 +85,24 @@ public class MessageController {
             throw new ForbidException("操作失败，你没有权限");
         }
         messageRepository.deleteById(id);
+    }
+
+    @PostMapping("batch-mark-read")
+    public void batchMarkRead(@RequestParam List<Long> ids) {
+        if (!auth.isLoggedIn()) {
+            throw new UnauthorizedException();
+        }
+        for (var id : ids) {
+            var message = messageRepository.findById(id).orElse(null);
+            if (message == null) {
+                throw new NotFoundException("消息不存在");
+            }
+            if (message.getReceiverId() != auth.userId()) {
+                throw new ForbidException("你没有权限");
+            }
+            message.setHaveRead(true);
+            messageRepository.save(message);
+        }
     }
 
 
