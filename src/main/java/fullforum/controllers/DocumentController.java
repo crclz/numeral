@@ -261,14 +261,16 @@ public class DocumentController {
                     "select d from Document d join Favorite f" +
                             " on d.id = f.documentId" +
                             " where f.userId = :userId" +
-                            " and d.isAbandoned = false")
+                            " and d.isAbandoned = false" +
+                            " order by d.updatedAt desc ")
                     .setParameter("userId", auth.userId());
             results = query.getResultList();
         } else if (isAbandoned != null && isAbandoned) { //返回当前用户回收站内文档
             var query = entityManager.createQuery(
                     "select d from Document d" +
                             " where d.creatorId = :userId " +
-                            " and d.isAbandoned = true")
+                            " and d.isAbandoned = true" +
+                            " order by d.updatedAt desc ")
                     .setParameter("userId", auth.userId());
             results = query.getResultList();
         } else if (recent != null && recent) { //返回当前用户最近浏览的文档
@@ -299,7 +301,8 @@ public class DocumentController {
                     "select d from Document d" +
                             " where (:creatorId is null or d.creatorId = :creatorId)" +
                             " and (:teamId is null or d.teamId = :teamId)" +
-                            " and d.isAbandoned = false")
+                            " and d.isAbandoned = false" +
+                            " order by d.updatedAt desc ")
                     .setParameter("creatorId", creatorId)
                     .setParameter("teamId", teamId);
             results = query.getResultList();
