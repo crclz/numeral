@@ -1,6 +1,5 @@
 package fullforum.controllers;
 
-import fullforum.data.models.Document;
 import fullforum.data.models.Favorite;
 import fullforum.data.repos.DocumentRepository;
 import fullforum.data.repos.FavoriteRepository;
@@ -10,13 +9,11 @@ import fullforum.errhand.UnauthorizedException;
 import fullforum.services.IAuth;
 import fullforum.services.Snowflake;
 import io.swagger.annotations.ApiOperation;
-import org.hibernate.cfg.NotYetImplementedException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import javax.transaction.Transactional;
-import java.util.List;
 
 @Transactional
 @RestController

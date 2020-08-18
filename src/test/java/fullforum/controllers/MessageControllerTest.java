@@ -9,12 +9,15 @@ import fullforum.data.repos.TeamRepository;
 import fullforum.data.repos.UserRepository;
 import fullforum.dependency.FakeAuth;
 import fullforum.dto.in.CreateMessageModel;
-import fullforum.dto.out.QMessage;
+import fullforum.errhand.ForbidException;
 import fullforum.errhand.NotFoundException;
 import fullforum.errhand.UnauthorizedException;
 import fullforum.services.Snowflake;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+
+import java.util.ArrayList;
+
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -96,6 +99,55 @@ public class MessageControllerTest extends BaseTest {
         assertNull(messageInDb2);
     }
 
+
+    //test batchMarkRead
+
+    @Test
+    void batchMarkRead_throw_UnauthorizedException_when_user_is_not_log_in() {
+        assertThrows(UnauthorizedException.class, () -> messageController.batchMarkRead(null));
+    }
+
+    @Test
+    void batchMarkRead_throw_NotFoundException_when_user_is_not_log_in() {
+        auth.setRealUserId(1L);
+
+        var ids = new ArrayList<Long>();
+        ids.add(2L);
+        assertThrows(NotFoundException.class, () -> messageController.batchMarkRead(ids));
+    }
+
+    @Test
+    void batchMarkRead_throw_ForbidException_when_user_try_to_mark_others_message() {
+        var message1 = new Message(11L, -1L, 2L);
+        messageRepository.save(message1);
+        auth.setRealUserId(1L);
+
+        var ids = new ArrayList<Long>();
+        ids.add(11L);
+        assertThrows(ForbidException.class, () -> messageController.batchMarkRead(ids));
+    }
+
+
+    @Test
+    void batchMarkRead_return_ok_and_update_db_when_all_ok() {
+        var message1 = new Message(11L, -1L, 1L);
+        var message2 = new Message(12L, -1L, 1L);
+        messageRepository.save(message1);
+        messageRepository.save(message2);
+
+        auth.setRealUserId(1L);
+
+        var ids = new ArrayList<Long>();
+        ids.add(11L);
+        ids.add(12L);
+        messageController.batchMarkRead(ids);
+
+        for (var id : ids) {
+            var messageInDb = messageRepository.findById(id).orElse(null);
+            assertNotNull(messageInDb);
+            assertTrue(messageInDb.getHaveRead());
+        }
+    }
 
 
 

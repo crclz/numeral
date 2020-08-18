@@ -79,17 +79,23 @@ public class ReplyControllerTest extends BaseTest {
         var comment = new Comment(10L, 222L, 23323L, "12313213");
         commentRepository.save(comment);
 
-        var model = new CreateReplyModel(10L, 100L, "DSa");
-        var rid = replyController.createReply(model);
-        assertNotNull(rid);
+        var model1 = new CreateReplyModel(10L, 100L, "DSa");
+        var model2 = new CreateReplyModel(10L, 1L, "DSa");
 
-        var replyInDb = replyRepository.findById(rid.id).orElse(null);
+        var rid1 = replyController.createReply(model1);
+        assertNotNull(rid1);
+
+        var rid2 = replyController.createReply(model2);
+
+
+        var replyInDb = replyRepository.findById(rid1.id).orElse(null);
         assertNotNull(replyInDb);
         assertEquals(replyInDb.getCommentId(), comment.getId());
-        assertEquals(replyInDb.getTargetUserId(), model.targetUserId);
+        assertEquals(replyInDb.getTargetUserId(), model1.targetUserId);
         assertEquals(replyInDb.getUserId(), auth.userId());
 
         var messages = messageRepository.findAllByReceiverId(100L);
+        assertEquals(messages.size(), 1);
         for (Message message : messages) {
             assertEquals(message.getTitle(), "评论回复通知");
         }
