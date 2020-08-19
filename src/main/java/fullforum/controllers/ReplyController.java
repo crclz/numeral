@@ -74,11 +74,6 @@ public class ReplyController {
             throw new NotFoundException("操作失败，评论不存在");
         }
 
-        var permissions = getCurrentUserPermission(comment.getDocumentId());
-        if (permissions.commentAccess != Access.ReadWrite) {
-            throw new ForbidException("你没有权限发送回复");
-        }
-
         var reply = new Reply(snowflake.nextId(), comment.getId(), auth.userId(), model.targetUserId, model.content);
         replyRepository.save(reply);
 
@@ -161,53 +156,5 @@ public class ReplyController {
         }
 
         return replies;
-    }
-
-
-    // Access helpers
-    private AccessorLevel getAccessorLevel(Document document, long accessorId) {
-        if (accessorId == document.getCreatorId()) {
-            return AccessorLevel.self;
-        }
-
-        if (document.getTeamId() == null) {
-            return AccessorLevel.publicLevel;
-        }
-
-        var membership = membershipRepository.findByUserIdAndTeamId(accessorId, document.getTeamId());
-        if (membership != null) {
-            return AccessorLevel.teamMember;
-        } else {
-            return AccessorLevel.publicLevel;
-        }
-    }
-
-    @Autowired
-    DocumentRepository documentRepository;
-
-    private UserPermission getCurrentUserPermission(Long id) {
-        if (!auth.isLoggedIn()) {
-            throw new UnauthorizedException();
-        }
-        var document = documentRepository.findById(id).orElse(null);
-        if (document == null) {
-            throw new NotFoundException("文档不存在");
-        }
-
-        // 获取当前用户与文章的关系：(AccesserLevel)
-        var level = getAccessorLevel(document, auth.userId());
-
-        if (level == AccessorLevel.self) {
-            return new UserPermission(auth.userId(), Access.ReadWrite, Access.ReadWrite, true);
-        }
-
-        if (level == AccessorLevel.teamMember) {
-            return new UserPermission(auth.userId(), document.getTeamDocumentAccess(),
-                    document.getTeamCommentAccess(), document.getTeamCanShare());
-        }
-
-        // public
-        return new UserPermission(auth.userId(), document.getPublicDocumentAccess(),
-                document.getPublicCommentAccess(), document.getPublicCanShare());
     }
 }
