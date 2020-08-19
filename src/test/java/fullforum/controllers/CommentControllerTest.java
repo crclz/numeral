@@ -62,6 +62,7 @@ public class CommentControllerTest extends BaseTest{
     void creatComment_throw_ForbidException_when_user_not_in_team_of_document_and_is_not_creator() {
         auth.setRealUserId(3333333);
         var document = new Document(2, 1, "hahah",  "model1.description", "model1.data");
+        document.setPublicCommentAccess(Access.Read);
         document.setTeamId(45L);
         documentRepository.save(document);
         var model = new CreateCommentModel(2L, "hahaha");
@@ -188,6 +189,9 @@ public class CommentControllerTest extends BaseTest{
         auth.setRealUserId(1);
         var team = new Team(999L, 21312L, "Dsadas", "dadsda");
         teamRepository.save(team);
+
+        var membership = new Membership(12313L, 999L, 1L);
+        membershipRepository.save(membership);
 
         var document1 = new Document(2, 4, "hahah",  "model1.description", "model1.data");
         var document2 = new Document(3, 5, "hahah",  "model1.description", "model1.data");

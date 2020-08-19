@@ -78,7 +78,7 @@ public class ReplyController {
         var reply = new Reply(snowflake.nextId(), comment.getId(), auth.userId(), model.targetUserId, model.content);
         replyRepository.save(reply);
 
-        if (auth.userId() != model.targetUserId) {//只有来自他人的回复才通知评论/回复作者
+        if (reply.getUserId() != reply.getTargetUserId()) {//只有来自他人的回复才通知评论/回复作者
             var sender = userRepository.findById(auth.userId()).orElse(null);
             assert sender != null;
             var message = new Message(snowflake.nextId(), auth.userId(), reply.getTargetUserId());

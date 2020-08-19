@@ -57,7 +57,7 @@ public class ThumbController {
         var existedThumb = thumbRepository
                 .findByUserIdAndTargetIdAndType(auth.userId(), model.targetId, model.targetType);
         if (existedThumb != null) {
-            throw new BadRequestException(ErrorCode.UniqueViolation, "点赞已存在");
+            throw new BadRequestException(ErrorCode.UniqueViolation, "你已经点过赞了");
         }
 
         Thumb thumb;
@@ -103,7 +103,7 @@ public class ThumbController {
 
         var thumb = thumbRepository.findById(id).orElse(null);
         if (thumb == null) {
-            throw new NotFoundException("点赞记录不存在");
+            throw new NotFoundException("你还没有点赞");
         }
         if (auth.userId() != thumb.getUserId()) {
             throw new ForbidException("你没有权限");
@@ -133,7 +133,7 @@ public class ThumbController {
         }
         var thumb = thumbRepository.findById(id).orElse(null);
         if (thumb == null) {
-            throw new NotFoundException("点赞记录不存在");
+            throw new NotFoundException("你还没有点赞 ");
         }
         return thumb;
     }
