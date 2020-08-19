@@ -103,7 +103,13 @@ public class DocumentControllerTest extends BaseTest {
     @Test
     void patchDocument_throw_ForbidException_when_user_is_not_creator_and_not_in_team_of_document() {
         auth.setRealUserId(2);
+        var team = new Team(99L, 21313L, "1231231", "312123");
+        teamRepository.save(team);
+
         var document = new Document(1, 1, "hahah",  "model1.description", "model1.data");
+        document.setPublicCommentAccess(Access.None);
+        document.setPublicDocumentAccess(Access.None);
+
         document.setTeamId(99L);
         documentRepository.save(document);
 
@@ -227,6 +233,7 @@ public class DocumentControllerTest extends BaseTest {
         var docEntity2 = new Document(7, 8, "dasda", "dasda", "Asdddad");
         docEntity1.setTeamId(100L);
         docEntity1.setTeamDocumentAccess(Access.ReadWrite);
+        docEntity1.setPublicDocumentAccess(Access.None);
         docEntity2.setPublicDocumentAccess(Access.None);
 
         documentRepository.save(docEntity1);

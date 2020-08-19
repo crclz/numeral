@@ -1,14 +1,12 @@
 package fullforum.controllers;
 
-import fullforum.data.models.Access;
-import fullforum.data.models.Comment;
-import fullforum.data.models.Message;
-import fullforum.data.models.Thumb;
+import fullforum.data.models.*;
 import fullforum.data.repos.*;
 import fullforum.dto.in.CreateCommentModel;
 import fullforum.dto.out.IdDto;
 import fullforum.dto.out.QComment;
 import fullforum.dto.out.Quser;
+import fullforum.dto.out.UserPermission;
 import fullforum.errhand.ForbidException;
 import fullforum.errhand.NotFoundException;
 import fullforum.errhand.UnauthorizedException;
@@ -77,17 +75,9 @@ public class CommentsController {
         }
 
         //检查权限
-        boolean havePermission;
-        if (auth.userId() == document.getCreatorId()) {
-            havePermission = true;
-        } else if (document.getTeamId() != null) { //团队文档
-            var membership = membershipRepository.findByUserIdAndTeamId(auth.userId(), document.getTeamId());
-            havePermission = (membership != null && document.getTeamCommentAccess().equals(Access.ReadWrite));
-        } else { //非团队文档
-            havePermission = document.getPublicCommentAccess().equals(Access.ReadWrite);
-        }
+        var userPermission = getCurrentUserPermission(document.getId());
 
-        if (havePermission) {
+        if (userPermission.commentAccess.equals(Access.ReadWrite)) {
             var comment = new Comment(snowflake.nextId(), model.documentId, auth.userId(), model.content);
             commentRepository.save(comment);
 
@@ -148,31 +138,18 @@ public class CommentsController {
             throw new UnauthorizedException();
         }
 
-        boolean havePermission = false;
-
         if (documentId != null) {
             var document = documentRepository.findById(documentId).orElse(null);
             if (document == null) {
                 return new ArrayList<>();
             }
-            if (document.getTeamId() != null) { //团队文档则按照团队权限
-                var team = teamRepository.findById(document.getTeamId()).orElse(null);
-                assert team != null;
-                var leaderId = team.getLeaderId();
-                var membership = membershipRepository.findByUserIdAndTeamId(auth.userId(), team.getId());
-                havePermission = (auth.userId() == document.getCreatorId()
-                        || auth.userId() == leaderId
-                        || (membership != null && !document.getTeamCommentAccess().equals(Access.None)));
-            } else {
-                havePermission = (auth.userId() == document.getCreatorId()
-                        || !document.getPublicCommentAccess().equals(Access.None));
+
+            var userPermission = getCurrentUserPermission(documentId);
+            if (userPermission.commentAccess == Access.None) {
+                return new ArrayList<>();
             }
-        }
 
-        if (!havePermission) {
-            throw new ForbidException("操作失败，你没有权限");
         }
-
         List<QComment> comments = new ArrayList<>();
 
         var query = entityManager.createQuery(
@@ -200,5 +177,53 @@ public class CommentsController {
         return comments;
     }
 
+
+    private AccessorLevel getAccessorLevel(Document document, long accessorId) {
+        if (accessorId == document.getCreatorId()) {
+            return AccessorLevel.self;
+        }
+
+        if (document.getTeamId() == null) {
+            return AccessorLevel.publicLevel;
+        }
+
+        var membership = membershipRepository.findByUserIdAndTeamId(accessorId, document.getTeamId());
+        if (membership != null) {
+            return AccessorLevel.teamMember;
+        } else {
+            return AccessorLevel.publicLevel;
+        }
+    }
+
+    @GetMapping("/permission/{id}")
+    public UserPermission getCurrentUserPermission(@PathVariable Long id) {
+        if (!auth.isLoggedIn()) {
+            throw new UnauthorizedException();
+        }
+        var document = documentRepository.findById(id).orElse(null);
+        if (document == null) {
+            throw new NotFoundException("文档不存在");
+        }
+
+        // 获取当前用户与文章的关系：(AccesserLevel)
+        var level = getAccessorLevel(document, auth.userId());
+
+        if (level == AccessorLevel.self) {
+            return new UserPermission(auth.userId(), Access.ReadWrite, Access.ReadWrite, true);
+        }
+
+        if (level == AccessorLevel.teamMember) {
+            return new UserPermission(auth.userId(), document.getTeamDocumentAccess(),
+                    document.getTeamCommentAccess(), document.getTeamCanShare());
+        }
+
+        // public
+        return new UserPermission(auth.userId(), document.getPublicDocumentAccess(),
+                document.getPublicCommentAccess(), document.getPublicCanShare());
+    }
+
+    private enum AccessorLevel {
+        publicLevel, teamMember, self
+    }
 
 }

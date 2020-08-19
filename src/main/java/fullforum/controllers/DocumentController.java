@@ -79,7 +79,6 @@ public class DocumentController {
     }
 
     @PatchMapping("{id}")
-
     public void patchDocument(@RequestBody @Valid PatchDocumentModel model, @PathVariable long id) {
         if (!auth.isLoggedIn()) {
             throw new UnauthorizedException();
@@ -89,26 +88,17 @@ public class DocumentController {
             throw new NotFoundException("文档不存在");
         }
         //检查权限
-        boolean havePermission;
-        if (auth.userId() == document.getCreatorId()) {
-            havePermission = true;
-        } else if (document.getTeamId() != null) { //团队文档
-            var membership = membershipRepository.findByUserIdAndTeamId(auth.userId(), document.getTeamId());
-            havePermission = (membership != null && document.getTeamDocumentAccess().equals(Access.ReadWrite));
-        } else { //非团队文档
-            havePermission = document.getPublicDocumentAccess().equals(Access.ReadWrite);
-        }
+        var userPermission = getCurrentUserPermission(id);
 
-
-        if (havePermission) {
+        if (userPermission.documentAccess.equals(Access.ReadWrite)) { //如果有读写权限可以修改文章标题内容简介
             document.setData(model.data == null ? document.getData() : model.data);
             document.setTitle(model.title == null ? document.getTitle() : model.title);
             document.setDescription(model.description == null ? document.getDescription() : model.description);
         } else {
-            throw new ForbidException("操作失败，你没有权限");
+            throw new ForbidException("你没有权限");
         }
 
-        if (document.getTeamId() != null) {
+        if (document.getTeamId() != null) { //如果为团队文档则队长可以修改文档的团队权限
             var team = teamRepository.findById(document.getTeamId()).orElse(null);
             assert team != null;//删除team的时候会清空doc的teamId
 
@@ -220,24 +210,12 @@ public class DocumentController {
             return QDocument.convert(document, modelMapper);
         }
 
-        if (document.getTeamId() != null) {
-            var membership = membershipRepository.findByUserIdAndTeamId(auth.userId(), document.getTeamId());
-            if (membership == null) {
-                throw new ForbidException("操作失败，你不在团队中");
-            }
-
-            if (document.getTeamDocumentAccess().equals(Access.None)) {
-                throw new ForbidException("操作失败，你没有权限");
-            }
-
+        var userPermission = getCurrentUserPermission(document.getId());
+        if (userPermission.documentAccess != Access.None) {
             viewRecordRepository.save(viewRecord);
             return QDocument.convert(document, modelMapper);
         } else {
-            if (document.getPublicDocumentAccess().equals(Access.None)) {
-                throw new ForbidException();
-            }
-            viewRecordRepository.save(viewRecord);
-            return QDocument.convert(document, modelMapper);
+            throw new ForbidException("操作失败，你没有权限");
         }
     }
 
@@ -311,9 +289,8 @@ public class DocumentController {
         for (var result : results) {
             var document = (Document) result;
             if (auth.userId() != document.getCreatorId()) {//非文档创建者
-                if (teamId != null && !document.getTeamDocumentAccess().equals(Access.None)) {//团队文档
-                    documents.add(QDocument.convert(document, modelMapper));
-                } else if (teamId == null && !document.getPublicDocumentAccess().equals(Access.None)) {//非团队文档
+                var permission = getCurrentUserPermission(document.getId());
+                if (permission.documentAccess != Access.None) {
                     documents.add(QDocument.convert(document, modelMapper));
                 }
             } else {
