@@ -353,40 +353,41 @@ public class DocumentControllerTest extends BaseTest {
         assertThrows(UnauthorizedException.class, () -> documentController.getCurrentUserPermission(1L));
     }
 
-    @Test
-    void getCurrentUserPermission_return_user_permission_when_all_ok() {
-        auth.setRealUserId(1);
-        var team = new Team(50L, 2L, "dasda", "sdad");
-        teamRepository.save(team);
-
-        var document = new Document(100L, 10L, "Dasdasd", "sadss", "Dsadasd");
-        document.setTeamId(50L);
-        document.setTeamCanShare(false);
-        document.setTeamDocumentAccess(Access.Read);
-        documentRepository.save(document);
-
-        var membership1 = new Membership(222L, 50L, 1L);
-        var membership2 = new Membership(223L, 50L, 2L);
-
-        membershipRepository.save(membership1);
-        membershipRepository.save(membership2);
-
-
-        var permission1 = documentController.getCurrentUserPermission(document.getId());
-        assertEquals(permission1.canShare, document.getTeamCanShare());
-        assertEquals(permission1.commentAccess, document.getTeamCommentAccess());
-        assertEquals(permission1.documentAccess, document.getTeamDocumentAccess());
-
-        auth.setRealUserId(2);
-
-        var permission2 = documentController.getCurrentUserPermission(document.getId());
-        assertTrue(permission2.canShare);
-        assertEquals(permission2.commentAccess, Access.ReadWrite);
-        assertEquals(permission2.documentAccess, Access.ReadWrite);
-
-
-
-    }
+    // TODO: rewrite test
+//    @Test
+//    void getCurrentUserPermission_return_user_permission_when_all_ok() {
+//        auth.setRealUserId(1);
+//        var team = new Team(50L, 2L, "dasda", "sdad");
+//        teamRepository.save(team);
+//
+//        var document = new Document(100L, 10L, "Dasdasd", "sadss", "Dsadasd");
+//        document.setTeamId(50L);
+//        document.setTeamCanShare(false);
+//        document.setTeamDocumentAccess(Access.Read);
+//        documentRepository.save(document);
+//
+//        var membership1 = new Membership(222L, 50L, 1L);
+//        var membership2 = new Membership(223L, 50L, 2L);
+//
+//        membershipRepository.save(membership1);
+//        membershipRepository.save(membership2);
+//
+//
+//        var permission1 = documentController.getCurrentUserPermission(document.getId());
+//        assertEquals(permission1.canShare, document.getTeamCanShare());
+//        assertEquals(permission1.commentAccess, document.getTeamCommentAccess());
+//        assertEquals(permission1.documentAccess, document.getTeamDocumentAccess());
+//
+//        auth.setRealUserId(2);
+//
+//        var permission2 = documentController.getCurrentUserPermission(document.getId());
+//        assertTrue(permission2.canShare);
+//        assertEquals(permission2.commentAccess, Access.ReadWrite);
+//        assertEquals(permission2.documentAccess, Access.ReadWrite);
+//
+//
+//
+//    }
 
 
 

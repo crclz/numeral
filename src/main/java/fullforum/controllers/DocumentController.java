@@ -115,7 +115,7 @@ public class DocumentController {
             if (auth.userId() == team.getLeaderId()) { //队长可以修改文档的团队权限
                 if (model.teamId != null && model.teamId == -1) {
                     document.setTeamId(null);
-                } else if (model.teamId != null){
+                } else if (model.teamId != null) {
                     var teamInDb = teamRepository.findById(model.teamId).orElse(null);
                     if (teamInDb == null) {
                         throw new NotFoundException("该团队不存在");
@@ -135,7 +135,7 @@ public class DocumentController {
         if (auth.userId() == document.getCreatorId()) { //创建者可以修改文档的所有权限
             if (model.teamId != null && model.teamId == -1) {
                 document.setTeamId(null);
-            } else if (model.teamId != null){
+            } else if (model.teamId != null) {
                 var teamInDb = teamRepository.findById(model.teamId).orElse(null);
                 if (teamInDb == null) {
                     throw new NotFoundException("该团队不存在");
@@ -323,6 +323,23 @@ public class DocumentController {
         return documents;
     }
 
+    private AccessorLevel getAccessorLevel(Document document, long accessorId) {
+        if (accessorId == document.getCreatorId()) {
+            return AccessorLevel.self;
+        }
+
+        if (document.getTeamId() == null) {
+            return AccessorLevel.publicLevel;
+        }
+
+        var membership = membershipRepository.findByUserIdAndTeamId(accessorId, document.getTeamId());
+        if (membership != null) {
+            return AccessorLevel.teamMember;
+        } else {
+            return AccessorLevel.publicLevel;
+        }
+    }
+
     @GetMapping("/permission/{id}")
     public UserPermission getCurrentUserPermission(@PathVariable Long id) {
         if (!auth.isLoggedIn()) {
@@ -333,30 +350,25 @@ public class DocumentController {
             throw new NotFoundException("文档不存在");
         }
 
-        if (auth.userId() == document.getCreatorId()) {
+        // 获取当前用户与文章的关系：(AccesserLevel)
+        var level = getAccessorLevel(document, auth.userId());
+
+        if (level == AccessorLevel.self) {
             return new UserPermission(auth.userId(), Access.ReadWrite, Access.ReadWrite, true);
         }
 
-        if (document.getTeamId() != null) {
-            var membership = membershipRepository.findByUserIdAndTeamId(auth.userId(), document.getTeamId());
-            var team = teamRepository.findById(document.getTeamId()).orElse(null);
-            assert team != null;
-
-            if (membership == null) {
-                return new UserPermission(auth.userId(), Access.None, Access.None, false);
-            }
-
-            if (team.getLeaderId() == auth.userId()) {
-                return new UserPermission(auth.userId(), Access.ReadWrite, Access.ReadWrite, true);
-            } else {
-                return new UserPermission(auth.userId(), document.getTeamDocumentAccess(),
-                        document.getTeamCommentAccess(), document.getTeamCanShare());
-            }
-        } else {
-            return new UserPermission(auth.userId(), document.getPublicDocumentAccess(),
-                    document.getPublicCommentAccess(), document.getPublicCanShare());
+        if (level == AccessorLevel.teamMember) {
+            return new UserPermission(auth.userId(), document.getTeamDocumentAccess(),
+                    document.getTeamCommentAccess(), document.getTeamCanShare());
         }
 
+        // public
+        return new UserPermission(auth.userId(), document.getPublicDocumentAccess(),
+                document.getPublicCommentAccess(), document.getPublicCanShare());
+    }
+
+    private enum AccessorLevel {
+        publicLevel, teamMember, self
     }
 
 
