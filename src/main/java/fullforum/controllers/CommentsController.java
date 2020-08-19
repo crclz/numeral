@@ -154,20 +154,21 @@ public class CommentsController {
 
         var query = entityManager.createQuery(
                 "select c, t from Comment c left join Thumb t " +
-                        " on (c.userId = t.userId and c.id = t.targetId)" +
+                        " on (t.userId=:meId and c.id = t.targetId)" +
                         " where (:documentId is null or c.documentId = :documentId)" +
                         " and (:userId is null or c.userId = :userId)")
                 .setParameter("documentId", documentId)
-                .setParameter("userId", userId);
+                .setParameter("userId", userId)
+                .setParameter("meId", auth.userId());
 
         var results = query.getResultList();
 
         for (var result : results) {
-            var objs = (Object[])result;
+            var objs = (Object[]) result;
             var comment = (Comment) (objs)[0];
             Thumb thumb;
             if (objs[1] != null) {
-                thumb = (Thumb)objs[1];
+                thumb = (Thumb) objs[1];
             } else {
                 thumb = null;
             }
