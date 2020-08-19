@@ -184,8 +184,59 @@ public class CommentControllerTest extends BaseTest{
     }
     //test getComments
 
+//    @Test
+//    void getComments_throw_ForbidException_when_user_have_no_permission() {
+//        auth.setRealUserId(1);
+//        var team = new Team(999L, 21312L, "Dsadas", "dadsda");
+//        teamRepository.save(team);
+//
+//        var membership = new Membership(12313L, 999L, 1L);
+//        membershipRepository.save(membership);
+//
+//        var document1 = new Document(2, 4, "hahah",  "model1.description", "model1.data");
+//        var document2 = new Document(3, 5, "hahah",  "model1.description", "model1.data");
+//        var document3 = new Document(4, 6, "hahah",  "model1.description", "model1.data");
+//        var document4 = new Document(5, 7, "hahah",  "model1.description", "model1.data");
+//
+//        document1.setPublicCommentAccess(Access.ReadWrite);
+//        document2.setPublicCommentAccess(Access.ReadWrite);
+//        document3.setPublicCommentAccess(Access.ReadWrite);
+//        document4.setPublicCommentAccess(Access.ReadWrite);
+//
+//        document1.setPublicCommentAccess(Access.None);
+//        document2.setTeamId(999L);
+//        document2.setTeamCommentAccess(Access.None);
+//
+//        documentRepository.save(document1);
+//        documentRepository.save(document2);
+//        documentRepository.save(document3);
+//        documentRepository.save(document4);
+//
+//        var comment1 = new Comment(100L, 2L, 1L, "dasdadad");
+//        var comment2 = new Comment(101L, 4L, 1L, "dasdadad");
+//        var comment3 = new Comment(102L, 3L, 1L, "dasdadad");
+//        var comment4 = new Comment(103L, 2L, 2L, "dasdadad");
+//        var comment5 = new Comment(104L, 4L, 2L, "dasdadad");
+//
+//        commentRepository.save(comment1);
+//        commentRepository.save(comment2);
+//        commentRepository.save(comment3);
+//        commentRepository.save(comment4);
+//        commentRepository.save(comment5);
+//
+//
+//        var docId1 = 2L;
+//        var userId = 1L;
+//
+//        assertThrows(ForbidException.class, () -> commentsController.getComments(docId1, userId));
+//
+//        var docId2 = document2.getId();
+//        assertThrows(ForbidException.class, () -> commentsController.getComments(docId2, userId));
+//
+//    }
+
     @Test
-    void getComments_throw_ForbidException_when_user_have_no_permission() {
+    void getComments_return_empty_list_when_user_have_no_permission() {
         auth.setRealUserId(1);
         var team = new Team(999L, 21312L, "Dsadas", "dadsda");
         teamRepository.save(team);
@@ -228,10 +279,12 @@ public class CommentControllerTest extends BaseTest{
         var docId1 = 2L;
         var userId = 1L;
 
-        assertThrows(ForbidException.class, () -> commentsController.getComments(docId1, userId));
+        assertEquals(commentsController.getComments(docId1, userId).size(), 0);
 
-        var docId2 = document2.getId();
-        assertThrows(ForbidException.class, () -> commentsController.getComments(docId2, userId));
+//        assertThrows(ForbidException.class, () -> commentsController.getComments(docId1, userId));
+//
+//        var docId2 = document2.getId();
+//        assertThrows(ForbidException.class, () -> commentsController.getComments(docId2, userId));
 
     }
 
