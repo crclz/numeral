@@ -90,12 +90,14 @@ public class DocumentController {
         //检查权限
         var userPermission = getCurrentUserPermission(id);
 
-        if (userPermission.documentAccess.equals(Access.ReadWrite)) { //如果有读写权限可以修改文章标题内容简介
+        if (model.data != null || model.title != null || model.description != null) {
+            // 想要修改这几项
+            if (userPermission.documentAccess != Access.ReadWrite) {
+                throw new ForbidException("你没有权限");
+            }
             document.setData(model.data == null ? document.getData() : model.data);
             document.setTitle(model.title == null ? document.getTitle() : model.title);
             document.setDescription(model.description == null ? document.getDescription() : model.description);
-        } else {
-            throw new ForbidException("你没有权限");
         }
 
         if (document.getTeamId() != null) { //如果为团队文档则队长可以修改文档的团队权限
