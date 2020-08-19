@@ -88,6 +88,8 @@ public class ReplyController {
             var message = new Message(snowflake.nextId(), auth.userId(), reply.getTargetUserId());
             message.setTitle("评论回复通知");
             message.setContent(sender.getUsername() + " 回复了你");
+            message.setLink("/readFile/" + comment.getDocumentId());
+
             messageRepository.save(message);
         }
 
