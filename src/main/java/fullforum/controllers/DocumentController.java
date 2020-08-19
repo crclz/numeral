@@ -345,10 +345,8 @@ public class DocumentController {
         return new UserPermission(auth.userId(), document.getPublicDocumentAccess(),
                 document.getPublicCommentAccess(), document.getPublicCanShare());
     }
+}
 
-    private enum AccessorLevel {
-        publicLevel, teamMember, self
-    }
-
-
+enum AccessorLevel {
+    publicLevel, teamMember, self
 }
